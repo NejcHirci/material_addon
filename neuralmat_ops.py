@@ -95,13 +95,14 @@ class MAT_OT_NEURAL_FileBrowser(Operator, ImportHelper):
 
     def execute(self, context):
         fdir = self.properties.filepath
-        bpy.context.scene.neuralmat_properties.directory = os.path.dirname(fdir)
+        gan = bpy.context.scene.neuralmat_properties
+        gan.directory = os.path.dirname(fdir)
         fdir = os.path.dirname(fdir)
         if os.path.isdir(os.path.join(fdir, 'out')):
-            bpy.context.scene.neuralmat_properties.progress = "Material found."
+            gan.progress = "Material found."
             update_neural(os.path.join(fdir, 'out'))        
         else:
-            bpy.context.scene.matgan_properties.progress = "Ready to generate."
+            gan.progress = "Ready to generate."
         return {'FINISHED'}
 
 class MAT_OT_NEURAL_Generator(Operator):

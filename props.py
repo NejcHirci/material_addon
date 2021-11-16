@@ -31,8 +31,20 @@ class NeuralMaterialProps(bpy.types.PropertyGroup):
     w_res : bpy.props.IntProperty(name="Super resolution width", subtype="PIXEL", description="Width resolution for upscaling", \
         default=1024, min=512, max=8096)
 
+class MixMaterialProps(bpy.types.PropertyGroup):
+    directory: bpy.props.StringProperty(name="Import folder", description="The folder to import images from",
+        default="")
+    progress: bpy.props.StringProperty(name="Progress value", description="", default="Not started.", 
+        options={'SKIP_SAVE'})
+
 
 
 def register():
     bpy.types.Scene.matgan_properties = bpy.props.PointerProperty(type=MaterialGANProps)
     bpy.types.Scene.neuralmat_properties = bpy.props.PointerProperty(type=NeuralMaterialProps)
+    bpy.types.Scene.mixmat_properties = bpy.props.PointerProperty(type=MixMaterialProps)
+
+def unregister():
+    del bpy.types.Scene.matgan_properties
+    del bpy.types.Scene.neuralmat_properties
+    del bpy.types.Scene.mixmat_properties

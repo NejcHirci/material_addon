@@ -39,9 +39,8 @@ def update_active_mat(self, context):
         ob.data.materials[0] = bpy.data.materials["matgan_mat"]
     elif context.scene.SelectWorkflow == 'NeuralMAT':
         ob.data.materials[0] = bpy.data.materials["neural_mat"]
-    elif context.scene.SelectWorkflow == 'Mix':
+    elif context.scene.SelectWorkflow == 'MixMAT':
         ob.data.materials[0] = bpy.data.materials['mix_mat']
-
 
 def register():
     bpy.app.handlers.load_post.append(load_icons)
@@ -54,9 +53,7 @@ def register():
                 + 'Editing implemented as vector space exploration.'), 
             ('NeuralMAT', 'Neural Material', 'Using Neural Material model for generatiog. ' \
                 + 'Editing implemented as material interpolations.'), 
-            ('Mix', 'Blenderkit blending', 'Using a chosen subset of Blenderkit materials with ' \
-                + 'mix blender shader nodes for editing.'), 
-            ('Procedural', 'Algorithmic generation', 'Using a Blender shader nodes approach for ' \
+            ('MixMAT', 'Algorithmic generation', 'Using a Blender shader nodes approach for ' \
                 + 'generating textures from albedo with mix blender shader nodes for editing.')
         },
         default='MatGAN',
@@ -215,12 +212,28 @@ class MAT_PT_GeneratorPanel(Panel):
         if MAT_OT_NEURAL_GetInterpolations._popen is None and MAT_OT_NEURAL_Generator._popen is None:
             self.draw_gallery(context, neuralmat, "neural")
 
+    def draw_mixmat(self, context):
+        layout = self.layout
+        mix = bpy.context.scene.mixmat_properties
+
+        row = layout.row()
+        row.prop(mix, "progress", emboss=False, text="Status")
+
+        row = layout.row()
+        row.prop(mix, "directory", text="Directory")
+        row.operator("mixmat.file_browser", icon="FILE_FOLDER", text="")
+
+        row = layout.row()
+        row.operator("mixmat.generator", text="Generate")
+
     def draw(self, context):
         self.layout.prop(context.scene, 'SelectWorkflow')
         if context.scene.SelectWorkflow == 'MatGAN':
             self.draw_matgan(context)
         elif context.scene.SelectWorkflow == 'NeuralMAT':
             self.draw_neuralmat(context)
+        elif context.scene.SelectWorkflow == 'MixMAT':
+            self.draw_mixmat(context)
         
 class MAT_OT_StatusUpdater(Operator):
     """Operator which runs its self from a timer"""
