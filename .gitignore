@@ -1,0 +1,7 @@
+# Project specific
+
+# Python specific
+__pycache__
+materialGAN/data/
+neuralmaterial/data/
+
