@@ -61,21 +61,6 @@ def update_mix(base_path):
         img.name = 'mixmat-emission.png'
         emission.image = img
 
-class MAT_OT_MIX_GetInterpolations(Operator):
-    bl_idname = "mixmat.get_interpolations"
-    bl_label = "Render different interpolations for mix material."
-    bl_description = "Get different material interpolations between materials for mix material."
-
-    @classmethod
-    def poll(self, context):
-        return "generated" in bpy.context.scene.mixmat_properties.progress
-
-    def execute(self, context):
-        mix = bpy.context.scene.mixmat_properties
-
-        
-        return {'FINISHED'}
-
 class MAT_OT_MIX_Generator(Operator):
     bl_idname = "mixmat.generator"
     bl_label = "Generate PBR maps from albedo"
