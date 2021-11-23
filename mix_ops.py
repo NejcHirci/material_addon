@@ -6,6 +6,7 @@
 
 import os
 from pathlib import Path
+from threading import Thread
 
 import bpy
 from bpy.types import Operator
@@ -17,36 +18,63 @@ def check_remove_img(name):
         bpy.data.images.remove(image)
 
 # Function for updating textures during material generation.
-def update_neural(base_path):
+def update_mix(base_path):
     # Update textures if they already exist
-    mat = bpy.data.materials["mixmat_mat"]
+    mat = bpy.data.materials["mix_mat"]
     nodes = mat.node_tree.nodes
 
     albedo = nodes.get("Image Texture")
-    specular = nodes.get("Image Texture.001")
-    rough = nodes.get("Image Texture.002")
-    normal = nodes.get("Image Texture.003")
+    metallic = nodes.get("Image Texture.001")
+    ambient_occlusion = nodes.get("Image Texture.002")
+    cavity = nodes.get("Image Texture.004")
+    normal = nodes.get("Image Texture.005")
+    roughness = nodes.get("Image Texture.006")
+    emission = nodes.get("Image Texture.007")
 
-    if os.path.isfile(os.path.join(base_path, 'albedo.png')):
-        check_remove_img('neural-render.png')
-        img = bpy.data.images.load(os.path.join(base_path, 'render.png'))
-        img.name = 'neural-render.png'
-        check_remove_img('neural-albedo.png')
-        img = bpy.data.images.load(os.path.join(base_path, 'albedo.png'))
-        img.name = 'neural-albedo.png'
+    if os.path.isfile(os.path.join(base_path, 'Albedo0000.png')):
+        check_remove_img('mixmat-albedo.png')
+        img = bpy.data.images.load(os.path.join(base_path, 'Albedo0000.png'))
+        img.name = 'mixmat-albedo.png'
         albedo.image = img
-        check_remove_img('neural-specular.png')
-        img = bpy.data.images.load(os.path.join(base_path, 'specular.png'))
-        img.name = 'neural-specular.png'
-        specular.image = img    
-        check_remove_img('neural-rough.png')
-        img = bpy.data.images.load(os.path.join(base_path, 'rough.png'))
-        img.name = 'neural-rough.png'
-        rough.image = img
-        check_remove_img('neural-normal.png')
-        img = bpy.data.images.load(os.path.join(base_path, 'normal.png'))
-        img.name = 'neural-normal.png'
+        check_remove_img('mixmat-metallic.png')
+        img = bpy.data.images.load(os.path.join(base_path, 'Metallic0000.png'))
+        img.name = 'mixmat-metallic.png'
+        metallic.image = img    
+        check_remove_img('mixmat-rough.png')
+        img = bpy.data.images.load(os.path.join(base_path, 'Roughness0000.png'))
+        img.name = 'mixmat-rough.png'
+        roughness.image = img
+        check_remove_img('mixmat-normal.png')
+        img = bpy.data.images.load(os.path.join(base_path, 'Normal0000.png'))
+        img.name = 'mixmat-normal.png'
         normal.image = img
+        check_remove_img('mixmat-ao.png')
+        img = bpy.data.images.load(os.path.join(base_path, 'AO0000.png'))
+        img.name = 'mixmat-ao.png'
+        ambient_occlusion.image = img
+        check_remove_img('mixmat-cavity.png')
+        img = bpy.data.images.load(os.path.join(base_path, 'Cavity0000.png'))
+        img.name = 'mixmat-cavity.png'
+        cavity.image = img
+        check_remove_img('mixmat-emission.png')
+        img = bpy.data.images.load(os.path.join(base_path, 'Emission0000.png'))
+        img.name = 'mixmat-emission.png'
+        emission.image = img
+
+class MAT_OT_MIX_GetInterpolations(Operator):
+    bl_idname = "mixmat.get_interpolations"
+    bl_label = "Render different interpolations for mix material."
+    bl_description = "Get different material interpolations between materials for mix material."
+
+    @classmethod
+    def poll(self, context):
+        return "generated" in bpy.context.scene.mixmat_properties.progress
+
+    def execute(self, context):
+        mix = bpy.context.scene.mixmat_properties
+
+        
+        return {'FINISHED'}
 
 class MAT_OT_MIX_Generator(Operator):
     bl_idname = "mixmat.generator"
@@ -83,17 +111,23 @@ class MAT_OT_MIX_Generator(Operator):
         main_output = photo_to_pbr.node_tree.nodes['File Output.001']
         main_output.base_path = str(out_dir)
 
+        mixmat.progress = "Generating textures from albedo ..."
+
+        bpy.context.window.cursor_set("WAIT")
 
         bpy.ops.render.render()
- 
-        for node in tree.nodes:
-            tree.nodes.remove(node)
-            
+
+        for node in bpy.context.scene.node_tree.nodes:
+            bpy.context.scene.node_tree.nodes.remove(node)
+
+        out_dir = Path(mixmat.directory, 'out')
         bpy.context.scene.use_nodes = False
+        update_mix(str(out_dir))
+        mixmat.progress = "Textures generated."
 
-        mixmat.progress = "Textures generated"
+        bpy.context.window.cursor_set("DEFAULT")
+
         return {'FINISHED'}
-
 
 class MAT_OT_MIX_FileBrowser(Operator, ImportHelper):
     """File browser operator"""

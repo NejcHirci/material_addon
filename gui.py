@@ -10,6 +10,7 @@ import os
 import threading
 from queue import Queue
 
+from . mix_ops import *
 from . matgan_ops import *
 from . neuralmat_ops import *
 
@@ -216,6 +217,10 @@ class MAT_PT_GeneratorPanel(Panel):
         layout = self.layout
         mix = bpy.context.scene.mixmat_properties
 
+        # ================================================
+        # Draw Mix Materials generator operator
+        # ================================================
+
         row = layout.row()
         row.prop(mix, "progress", emboss=False, text="Status")
 
@@ -225,6 +230,22 @@ class MAT_PT_GeneratorPanel(Panel):
 
         row = layout.row()
         row.operator("mixmat.generator", text="Generate")
+
+        layout.separator()
+
+        # ================================================
+        # Draw Mix material interpolations operator
+        # ================================================
+
+        row = layout.row()
+        row.prop(mix, "material", text="Select")
+        row.prop(mix, "value", text="Mix level")
+        
+
+        if 'generated' in mix.progress:
+            layout.separator()
+            row = layout.row()
+            row.template_preview(bpy.data.materials["mix_mat"], show_buttons=False)
 
     def draw(self, context):
         self.layout.prop(context.scene, 'SelectWorkflow')

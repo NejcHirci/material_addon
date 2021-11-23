@@ -92,12 +92,12 @@ if __name__ == "__main__":
             subprocess.call([python_exe, "-m", "pip", "install","--only-binary=numpy", "kornia"])  
 
         # Get Pupil Apriltags
-        # try:
-        #     import pupil_apriltags
-        #     print('pupil_apriltags already installed.')
-        # except ImportError:
-        #     print('pupil_apriltags to be installed.')
-        #     subprocess.call([python_exe, "-m", "pip", "install","pupil_apriltags"])  
+        try:
+            import pupil_apriltags
+            print('pupil_apriltags already installed.')
+        except ImportError:
+            print('pupil_apriltags to be installed.')
+            subprocess.call([python_exe, "-m", "pip", "install","pupil_apriltags"])  
         
         # Get yaml
         try:
