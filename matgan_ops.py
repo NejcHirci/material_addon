@@ -172,7 +172,7 @@ class MAT_OT_MATGAN_InputFromFlashImage(Operator):
 
     @classmethod
     def poll(self, context):
-        return not ("Epoch" in bpy.context.scene.matgan_properties.progress) and not ("Format" in bpy.context.scene.matgan_properties.progress)
+        return "Ready to format." in bpy.context.scene.matgan_properties.progress
 
     def execute(self, context):
         base_dir = bpy.context.scene.matgan_properties.directory

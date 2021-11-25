@@ -28,7 +28,7 @@ class MaterialGANProps(bpy.types.PropertyGroup):
         default=2000, min=100, max=10000, options={'SKIP_SAVE'})
     directory: bpy.props.StringProperty(name="Import folder", description="The folder to import images from",
         default="")
-    progress: bpy.props.StringProperty(name="Progress value", description="", default="Not started.", 
+    progress: bpy.props.StringProperty(name="Progress value", description="", default="Not started.",
         options={'SKIP_SAVE'})
     h_res : bpy.props.IntProperty(name="Super resolution height", subtype="PIXEL", description="Height resolution for upscaling", \
         default=1024, min=512, max=8096)
@@ -42,7 +42,7 @@ class NeuralMaterialProps(bpy.types.PropertyGroup):
         default=2000, min=100, max=10000, options={'SKIP_SAVE'})
     directory: bpy.props.StringProperty(name="Import folder", description="The folder to import images from",
         default="")
-    progress: bpy.props.StringProperty(name="Progress value", description="", default="Not started.", 
+    progress: bpy.props.StringProperty(name="Progress value", description="", default="Not started.",
         options={'SKIP_SAVE'})
     h_res : bpy.props.IntProperty(name="Super resolution height", subtype="PIXEL", description="Height resolution for upscaling", \
         default=1024, min=512, max=8096)
@@ -52,7 +52,7 @@ class NeuralMaterialProps(bpy.types.PropertyGroup):
 class MixMaterialProps(bpy.types.PropertyGroup):
     directory: bpy.props.StringProperty(name="Import folder", description="The folder to import images from",
         default="")
-    progress: bpy.props.StringProperty(name="Progress value", description="", default="Not started.", 
+    progress: bpy.props.StringProperty(name="Progress value", description="", default="Not started.",
         options={'SKIP_SAVE'})
     material: bpy.props.EnumProperty(name="Preset materials", description="", items= { 
             ('Aluminium', 'Brushed Aluminium', 'Downloaded from https://www.blenderkit.com/get-blenderkit/738656a5-5912-42a3-bf0e-91b604b4625c/'),

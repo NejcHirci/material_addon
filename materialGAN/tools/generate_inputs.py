@@ -127,7 +127,17 @@ def reorder(arr, list1, list2, list3, list4, list5):
         del lis[id]
         return lis
 
-
+    if not isinstance(list1, list):
+        list1 = list(list1)
+    if not isinstance(list2, list):
+        list2 = list(list2)
+    if not isinstance(list3, list):
+        list3 = list(list3)
+    if not isinstance(list4, list):
+        list4 = list(list4)
+    if not isinstance(list5, list):
+        list5 = list(list5)
+        
     id = np.argmax( arr[:,0]+arr[:,1])
     arr = move_row_to_end(arr, id)
     list1 = move_element_to_end(list1, id)
