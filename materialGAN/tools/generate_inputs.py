@@ -114,7 +114,7 @@ def calibrate(imgs, in_dir, objectPoints, flag):
                             objectPoints_list, imagePoints_list,
                             (W,H), None, None)
 
-    return mtx, dist, rvecs, tvecs, objectPoints_list, imagePoints_list
+    return mtx, dist, list(rvecs), list(tvecs), objectPoints_list, imagePoints_list
 
 def reorder(arr, list1, list2, list3, list4, list5):
     def move_row_to_end(mat, id):

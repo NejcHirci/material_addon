@@ -8,9 +8,13 @@ import os
 import subprocess
 import sys
 import shutil
+from pathlib import Path
+
 import bpy
 from bpy.types import Operator
 from bpy_extras.io_utils import ImportHelper
+
+base_script_path = Path(__file__).parent.resolve()
 
 def check_remove_img(name):
     if name in bpy.data.images:
@@ -76,7 +80,7 @@ class MAT_OT_NEURAL_GetInterpolations(Operator):
                 '--input_path', in_dir,
                 '--weight_path', weight_dir,
                 '--h', str(neuralmat.h_res),
-                '--w', str(neuralmat.w_res)], stdout=subprocess.PIPE, cwd='./neuralmaterial/')
+                '--w', str(neuralmat.w_res)], stdout=subprocess.PIPE, cwd=str(Path(base_script_path, 'neuralmaterial')))
 
         MAT_OT_NEURAL_GetInterpolations._popen = process
 
@@ -134,7 +138,7 @@ class MAT_OT_NEURAL_Generator(Operator):
                 '--output_path', out_dir,
                 '--epochs', epochs,
                 '--h', str(neuralmat.h_res),
-                '--w', str(neuralmat.w_res)], stdout=subprocess.PIPE, cwd='./neuralmaterial/')
+                '--w', str(neuralmat.w_res)], stdout=subprocess.PIPE, cwd=str(Path(base_script_path, 'neuralmaterial')))
 
         MAT_OT_NEURAL_Generator._popen = process
 
@@ -211,7 +215,7 @@ class MAT_OT_NEURAL_EditMove(Operator):
                 '--input_path', in_dir,
                 '--weight_path', weight_dir,
                 '--h', str(gan.h_res),
-                '--w', str(gan.w_res)], stdout=subprocess.PIPE, cwd='./neuralmaterial/')
+                '--w', str(gan.w_res)], stdout=subprocess.PIPE, cwd=str(Path(base_script_path, 'neuralmaterial')))
 
         MAT_OT_NEURAL_GetInterpolations._popen = process
 

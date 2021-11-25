@@ -11,10 +11,13 @@ import os
 import shutil
 import subprocess
 import sys
+from pathlib import Path
 
 import bpy
 from bpy.types import Operator
 from bpy_extras.io_utils import ImportHelper
+
+base_script_path = Path(__file__).parent.resolve()
 
 def check_remove_img(name):
     if name in bpy.data.images:
@@ -73,7 +76,7 @@ class MAT_OT_MATGAN_Generator(Operator):
         in_dir  = base_dir
         out_dir = os.path.join(gan.directory, 'out')
 
-        cp_dir  = os.path.abspath(os.getcwd()) + '/materialGAN/data/pretrain/'
+        cp_dir  = './materialGAN/data/pretrain/'
         vgg_dir = cp_dir + 'vgg_conv.pt'
 
         N = gan.num_rend
@@ -96,7 +99,7 @@ class MAT_OT_MATGAN_Generator(Operator):
                 '--optim_latent', 
                 '--lr', str(lr),
                 '--gan_latent_init',  cp_dir + 'latent_avg_W+_256.pt',
-                '--gan_noise_init', cp_dir + 'latent_const_N_256.pt'], stdout=subprocess.PIPE)
+                '--gan_noise_init', cp_dir + 'latent_const_N_256.pt'], stdout=subprocess.PIPE, cwd=str(base_script_path))
 
         MAT_OT_MATGAN_Generator._popen = process
 
@@ -136,7 +139,7 @@ class MAT_OT_MATGAN_GetInterpolations(Operator):
                 '--save_dir', save_dir,
                 '--latent_path', latent_path,
                 '--noise_path', noise_path
-                ], stdout=subprocess.PIPE)
+                ], stdout=subprocess.PIPE, cwd=str(base_script_path))
         MAT_OT_MATGAN_GetInterpolations._popen = process
 
         gan.progress = 'Generating interpolations in directions'
@@ -179,7 +182,7 @@ class MAT_OT_MATGAN_InputFromFlashImage(Operator):
         python_exe = sys.executable
         process = subprocess.Popen([python_exe, '-u', './materialGAN/tools/generate_inputs.py',
                     '--in_dir', in_dir,
-                    '--out_dir', out_dir], stdout=subprocess.PIPE)
+                    '--out_dir', out_dir], stdout=subprocess.PIPE, cwd=str(base_script_path))
 
         MAT_OT_MATGAN_InputFromFlashImage._popen = process
 
@@ -253,7 +256,7 @@ class MAT_OT_MATGAN_EditMove(Operator):
                 '--save_dir', interp_dir,
                 '--latent_path', old_latent_path,
                 '--noise_path', os.path.join(out, 'optim_noise.pt')
-                ], stdout=subprocess.PIPE)
+                ], stdout=subprocess.PIPE, cwd=str(base_script_path))
         MAT_OT_MATGAN_GetInterpolations._popen = process
 
         gan.progress = 'Generating interpolations in directions'
@@ -278,7 +281,7 @@ class MAT_OT_MATGAN_SuperResolution(Operator):
         gan = bpy.context.scene.matgan_properties
         base_path = gan.directory
         in_path = os.path.join(base_path, 'out')
-        model_path = os.path.abspath(os.getcwd()) + '/liif/pretrain/edsr-baseline-liif.pth'
+        model_path = './liif/pretrain/edsr-baseline-liif.pth'
 
         h = gan.h_res
         w = gan.w_res
@@ -288,7 +291,7 @@ class MAT_OT_MATGAN_SuperResolution(Operator):
             '--dir', in_path,
             '--model', model_path,
             '--resolution', "{},{}".format(h, w),
-            '--gpu', "0"], stdout=subprocess.PIPE)
+            '--gpu', "0"], stdout=subprocess.PIPE, cwd=str(base_script_path))
         
         print(process.args)
 
