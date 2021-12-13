@@ -10,6 +10,7 @@
 import os
 import shutil
 import subprocess
+import time
 import sys
 from pathlib import Path
 
@@ -24,6 +25,15 @@ def check_remove_img(name):
         image = bpy.data.images[name]
         bpy.data.images.remove(image)
 
+def replace_file(src_path, dst_path, retries=10, sleep=0.1):
+    for i in range(retries):
+        try:
+            os.replace(src_path, dst_path)
+        except WindowsError:
+            time.sleep(sleep)
+        else:
+            break
+    
 # Function for updating textures during material generation.
 def update_matgan(base_path):
     # Update textures if they already exist
@@ -224,19 +234,19 @@ class MAT_OT_MATGAN_EditMove(Operator):
         # Rename old files
         out = os.path.join(gan.directory, 'out')
         old_latent_path = os.path.join(out, 'optim_latent.pt')
-        os.replace(old_latent_path, os.path.join(out, 'old_optim_latent.pt'))
+        replace_file(old_latent_path, os.path.join(out, 'old_optim_latent.pt'))
         old_noise_path = os.path.join(out, 'optim_noise.pt')
-        os.replace(old_noise_path, os.path.join(out, 'old_optim_noise.pt'))
+        replace_file(old_noise_path, os.path.join(out, 'old_optim_noise.pt'))
         old_render_path = os.path.join(out, 'render.png')
-        os.replace(old_render_path, os.path.join(out, 'old_render.png'))
+        replace_file(old_render_path, os.path.join(out, 'old_render.png'))
         old_albedo_path = os.path.join(out, 'albedo.png')
-        os.replace(old_albedo_path, os.path.join(out, 'old_albedo.png'))
+        replace_file(old_albedo_path, os.path.join(out, 'old_albedo.png'))
         old_rough_path = os.path.join(out, 'rough.png')
-        os.replace(old_rough_path, os.path.join(out, 'old_rough.png'))
+        replace_file(old_rough_path, os.path.join(out, 'old_rough.png'))
         old_specular_path = os.path.join(out, 'specular.png')
-        os.replace(old_specular_path, os.path.join(out, 'old_specular.png'))
+        replace_file(old_specular_path, os.path.join(out, 'old_specular.png'))
         old_normal_path = os.path.join(out, 'normal.png')
-        os.replace(old_normal_path, os.path.join(out, 'old_normal.png'))
+        replace_file(old_normal_path, os.path.join(out, 'old_normal.png'))
 
         # Copy and replace old files
         shutil.move(new_latent_path, old_latent_path)

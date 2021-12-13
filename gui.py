@@ -14,6 +14,7 @@ from . mix_ops import *
 from . matgan_ops import *
 from . neuralmat_ops import *
 
+cache_path = os.path.join(Path(__file__).parent.resolve(), '.cache')
 
 # Redraw all function
 def redraw_all(context):
@@ -28,11 +29,20 @@ def enqueue_output(out, queue):
     out.close()
 
 @persistent
-def load_icons(dummy):
+def on_addon_load(dummy):
     MAT_OT_MATGAN_GetInterpolations._popen = None
     MAT_OT_MATGAN_Generator._popen = None
     MAT_OT_MATGAN_InputFromFlashImage._popen = None
     MAT_OT_MATGAN_SuperResolution._popen = None
+
+    if not os.path.exists(cache_path):
+        os.makedirs(cache_path)
+    else:
+        for root, dirs, files in os.walk(cache_path):
+            for f in files:
+                os.unlink(os.path.join(root, f))
+            for d in dirs:
+                shutil.rmtree(os.path.join(root, d))
 
 def update_active_mat(self, context):
     ob = bpy.data.objects['Material Preview Plane']
@@ -43,8 +53,17 @@ def update_active_mat(self, context):
     elif context.scene.SelectWorkflow == 'MixMAT':
         ob.data.materials[0] = bpy.data.materials['mix_mat']
 
+# Copy files to .cache folder
+def copy_to_cache(src_path):
+    if os.path.isdir(src_path):
+        for file in os.listdir(os.fsencode(src_path)):
+            f = os.fsdecode(file)
+            if f.endswith(".png") or f.endswith(".pt") or f.endswith('.ckpt'): 
+                shutil.copyfile(os.path.join(src_path, f), os.path.join(cache_path, f))
+    
+
 def register():
-    bpy.app.handlers.load_post.append(load_icons)
+    bpy.app.handlers.load_post.append(on_addon_load)
 
     bpy.types.Scene.SelectWorkflow = bpy.props.EnumProperty(
         name = 'Material System Select',
@@ -62,7 +81,7 @@ def register():
     )
 
 def unregister():
-    bpy.app.handlers.load_post.remove(load_icons)
+    bpy.app.handlers.load_post.remove(on_addon_load)
 
 
 class MAT_PT_GeneratorPanel(Panel):
@@ -135,16 +154,21 @@ class MAT_PT_GeneratorPanel(Panel):
             self.draw_gallery(context, matgan, "matgan")
         
     def draw_gallery(self, context, gan, mode):
+        x = MAT_OT_GalleryDirection.direction
         interp_dir = os.path.join(gan.directory, 'interps')
         out_dir =  os.path.join(gan.directory, 'out')
 
-        if '7_1_render.png' in bpy.data.images and f'{mode}-render.png' in bpy.data.images:
+        if f'7_{x}_render.png' in bpy.data.images and f'{mode}-render.png' in bpy.data.images:
             layout = self.layout
+            row = layout.row()
+            sign = '+' if MAT_OT_GalleryDirection.direction == 1 else '-'
+            row.operator("wm.edit_direction_toggle", text="Toggle direction")
+
             box = layout.box()
             cols = box.column_flow(columns=3)
 
             # Get images
-            dir_list = sorted(glob.glob(interp_dir + '/*_1_render.png'))
+            dir_list = sorted(glob.glob(interp_dir + f'/*_{x}_render.png'))
 
             id = 0
             for dir in dir_list:
@@ -158,7 +182,7 @@ class MAT_PT_GeneratorPanel(Panel):
                 in_box = cols.box()
                 col = in_box.column()
                 col.template_icon(icon_value=img.preview.icon_id, scale=10)
-                operator = col.operator(f'{mode}.edit_move', text=f"Semantic {name[0]}")
+                operator = col.operator(f'{mode}.edit_move', text=f"Semantic {sign}{name[0]}")
                 operator.direction = name[0]
                 id += 1
             
@@ -261,6 +285,7 @@ class MAT_OT_StatusUpdater(Operator):
     bl_idname = "wm.modal_status_updater"
     bl_label = "Modal Status Updater"
 
+    _sTime = 0
     _timer = None
     _thread = None
     _q = Queue()
@@ -276,15 +301,18 @@ class MAT_OT_StatusUpdater(Operator):
                         print(line)
                         update_matgan(os.path.join(gan.directory, 'out'))
                         gan.progress = line
+                        gan.progress += f" Elapsed time:{time.time()-self._sTime:.2f}"
                         redraw_all(context)
                     except:
                         pass
                 else:
-                    update_matgan(os.path.join(gan.directory, 'out'))
+                    copy_to_cache(os.path.join(gan.directory, 'out'))
+                    update_matgan(cache_path)
                     gan.progress = "Material generated."
                     redraw_all(context)
                     MAT_OT_MATGAN_Generator._popen = None
                     self.cancel(context)
+                    gan.progress += f" Elapsed time:{time.time()-self._sTime:.2f}"
                     return {'CANCELLED'}
 
             elif MAT_OT_MATGAN_InputFromFlashImage._popen:
@@ -293,11 +321,13 @@ class MAT_OT_StatusUpdater(Operator):
                         line = self._q.get_nowait()
                         print(line)
                         gan.progress = line
+                        gan.progress += f" Elapsed time:{time.time()-self._sTime:.2f}"
                         redraw_all(context)
                     except:
                         pass
                 else:
                     gan.progress = "Input ready."
+                    gan.progress += f" Elapsed time:{time.time()-self._sTime:.2f}"
                     redraw_all(context)
                     MAT_OT_MATGAN_InputFromFlashImage._popen = None
                     self.cancel(context)
@@ -306,11 +336,13 @@ class MAT_OT_StatusUpdater(Operator):
             elif MAT_OT_MATGAN_SuperResolution._popen:
                 if MAT_OT_MATGAN_SuperResolution._popen.poll() is not None:
                     gan.progress = "Material upscaled."
-                    update_matgan(os.path.join(gan.directory, 'out'))
+                    copy_to_cache(os.path.join(gan.directory, 'out'))
+                    update_matgan(cache_path)
                     redraw_all(context)
                     MAT_OT_MATGAN_SuperResolution._popen = None
                     self._thread = None
                     self.cancel(context)
+                    gan.progress += f" Elapsed time:{time.time()-self._sTime:.2f}"
                     return {'CANCELLED'}
             
             elif MAT_OT_MATGAN_GetInterpolations._popen:
@@ -319,6 +351,7 @@ class MAT_OT_StatusUpdater(Operator):
                         line = self._q.get_nowait()
                         print(line)
                         gan.progress = line
+                        gan.progress += f" Elapsed time:{time.time()-self._sTime:.2f}"
                         redraw_all(context)
                     except:
                         pass
@@ -328,12 +361,15 @@ class MAT_OT_StatusUpdater(Operator):
                     img.name = 'matgan-render.png'
 
                     interp_path = os.path.join(gan.directory, 'interps')
-                    dir_list = sorted(glob.glob(interp_path + '/*_1_render.png'))
+                    dir_list = sorted(glob.glob(interp_path + '/*_*_render.png'))
                     for dir in dir_list:
                         check_remove_img(os.path.split(dir)[1])
                         img = bpy.data.images.load(dir)
                         img.name = os.path.split(dir)[1]
                     gan.progress = "Material interpolations generated."
+                    gan.progress += f" Elapsed time:{time.time()-self._sTime:.2f}"
+                    copy_to_cache(os.path.join(gan.directory, 'out'))
+                    update_matgan(cache_path)
                     redraw_all(context)
                     MAT_OT_MATGAN_GetInterpolations._popen = None
                     self.cancel(context)
@@ -347,12 +383,15 @@ class MAT_OT_StatusUpdater(Operator):
                         print(line)
                         update_neural(os.path.join(gan.directory, 'out'))
                         gan.progress = line
+                        gan.progress += f" Elapsed time:{time.time()-self._sTime:.2f}"
                         redraw_all(context)
                     except:
                         pass
                 else:
-                    update_neural(os.path.join(gan.directory, 'out'))
+                    copy_to_cache(os.path.join(gan.directory, 'out'))
+                    update_neural(cache_path)
                     gan.progress = "Material generated."
+                    gan.progress += f" Elapsed time:{time.time()-self._sTime:.2f}"
                     redraw_all(context)
                     MAT_OT_NEURAL_Generator._popen = None
                     self.cancel(context)
@@ -365,6 +404,7 @@ class MAT_OT_StatusUpdater(Operator):
                         line = self._q.get_nowait()
                         print(line)
                         gan.progress = line
+                        gan.progress += f" Elapsed time:{time.time()-self._sTime:.2f}"
                         redraw_all(context)
                     except:
                         pass
@@ -374,12 +414,15 @@ class MAT_OT_StatusUpdater(Operator):
                     img.name = 'neural-render.png'
 
                     interp_path = os.path.join(gan.directory, 'interps')
-                    dir_list = sorted(glob.glob(interp_path + '/*_1_render.png'))
+                    dir_list = sorted(glob.glob(interp_path + '/*_*_render.png'))
                     for dir in dir_list:
                         check_remove_img(os.path.split(dir)[1])
                         img = bpy.data.images.load(dir)
                         img.name = os.path.split(dir)[1]
                     gan.progress = "Material interpolations generated."
+                    gan.progress += f" Elapsed time:{time.time()-self._sTime:.2f}"
+                    copy_to_cache(os.path.join(gan.directory, 'out'))
+                    update_neural(cache_path)
                     redraw_all(context)
                     MAT_OT_NEURAL_GetInterpolations._popen = None
                     self.cancel(context)
@@ -391,6 +434,7 @@ class MAT_OT_StatusUpdater(Operator):
         return {'PASS_THROUGH'}
 
     def execute(self, context):
+        self._sTime = time.time()
         wm = context.window_manager
         self._timer = wm.event_timer_add(0.1, window=context.window)
         wm.modal_handler_add(self)
@@ -413,3 +457,18 @@ class MAT_OT_StatusUpdater(Operator):
     def cancel(self, context):
         wm = context.window_manager
         wm.event_timer_remove(self._timer)
+
+class MAT_OT_GalleryDirection(Operator):
+    """Operator which switches gallery edit direction"""
+    bl_idname = "wm.edit_direction_toggle"
+    bl_label = "Direction switch operator"
+
+
+    direction = 1
+
+    def execute(self, context):
+        if MAT_OT_GalleryDirection.direction == 1:
+            MAT_OT_GalleryDirection.direction = 2
+        else:
+            MAT_OT_GalleryDirection.direction = 1
+        return {'FINISHED'}

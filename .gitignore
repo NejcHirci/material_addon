@@ -5,3 +5,6 @@ __pycache__
 materialGAN/data/
 neuralmaterial/data/
 
+# Cache folder for addon
+.cache
+

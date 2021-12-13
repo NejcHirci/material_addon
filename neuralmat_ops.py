@@ -9,6 +9,7 @@ import subprocess
 import sys
 import shutil
 from pathlib import Path
+import time
 
 import bpy
 from bpy.types import Operator
@@ -52,6 +53,17 @@ def update_neural(base_path):
         img = bpy.data.images.load(os.path.join(base_path, 'normal.png'))
         img.name = 'neural-normal.png'
         normal.image = img
+
+def replace_file(src_path, dst_path, retries=10, sleep=0.1):
+    for i in range(retries):
+        try:
+            os.replace(src_path, dst_path)
+        except WindowsError:
+            import pdb
+            pdb.set_trace()
+            time.sleep(sleep)
+        else:
+            break
 
 
 class MAT_OT_NEURAL_GetInterpolations(Operator):
@@ -180,17 +192,17 @@ class MAT_OT_NEURAL_EditMove(Operator):
         # Rename old files
         out = os.path.join(gan.directory, 'out')
         old_weight_path = os.path.join(out, 'weights.ckpt')
-        os.replace(old_weight_path, os.path.join(out, 'old_weights.ckpt'))
+        replace_file(old_weight_path, os.path.join(out, 'old_weights.ckpt'))
         old_render_path = os.path.join(out, 'render.png')
-        os.replace(old_render_path, os.path.join(out, 'old_render.png'))
+        replace_file(old_render_path, os.path.join(out, 'old_render.png'))
         old_albedo_path = os.path.join(out, 'albedo.png')
-        os.replace(old_albedo_path, os.path.join(out, 'old_albedo.png'))
+        replace_file(old_albedo_path, os.path.join(out, 'old_albedo.png'))
         old_rough_path = os.path.join(out, 'rough.png')
-        os.replace(old_rough_path, os.path.join(out, 'old_rough.png'))
+        replace_file(old_rough_path, os.path.join(out, 'old_rough.png'))
         old_specular_path = os.path.join(out, 'specular.png')
-        os.replace(old_specular_path, os.path.join(out, 'old_specular.png'))
+        replace_file(old_specular_path, os.path.join(out, 'old_specular.png'))
         old_normal_path = os.path.join(out, 'normal.png')
-        os.replace(old_normal_path, os.path.join(out, 'old_normal.png'))
+        replace_file(old_normal_path, os.path.join(out, 'old_normal.png'))
 
         # Copy and replace old files
         shutil.move(new_weight_path, old_weight_path)
@@ -199,9 +211,6 @@ class MAT_OT_NEURAL_EditMove(Operator):
         shutil.move(new_rough_path, old_rough_path)
         shutil.move(new_specular_path, old_specular_path)
         shutil.move(new_normal_path, old_normal_path)
-
-        # Update material textures
-        update_neural(out)
 
         in_dir  = gan.directory
         weight_dir = os.path.join(gan.directory, 'out', 'weights.ckpt')
