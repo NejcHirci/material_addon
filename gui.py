@@ -301,7 +301,7 @@ class MAT_OT_StatusUpdater(Operator):
                         print(line)
                         update_matgan(os.path.join(gan.directory, 'out'))
                         gan.progress = line
-                        gan.progress += f" Elapsed time:{time.time()-self._sTime:.2f}"
+                        gan.progress += f" Elapsed time: {time.time()-self._sTime:.3f}"
                         redraw_all(context)
                     except:
                         pass
@@ -312,7 +312,7 @@ class MAT_OT_StatusUpdater(Operator):
                     redraw_all(context)
                     MAT_OT_MATGAN_Generator._popen = None
                     self.cancel(context)
-                    gan.progress += f" Elapsed time:{time.time()-self._sTime:.2f}"
+                    gan.progress += f" Elapsed time: {time.time()-self._sTime:.3f}"
                     return {'CANCELLED'}
 
             elif MAT_OT_MATGAN_InputFromFlashImage._popen:
@@ -321,13 +321,13 @@ class MAT_OT_StatusUpdater(Operator):
                         line = self._q.get_nowait()
                         print(line)
                         gan.progress = line
-                        gan.progress += f" Elapsed time:{time.time()-self._sTime:.2f}"
+                        gan.progress += f" Elapsed time: {time.time()-self._sTime:.3f}"
                         redraw_all(context)
                     except:
                         pass
                 else:
                     gan.progress = "Input ready."
-                    gan.progress += f" Elapsed time:{time.time()-self._sTime:.2f}"
+                    gan.progress += f" Elapsed time: {time.time()-self._sTime:.3f}"
                     redraw_all(context)
                     MAT_OT_MATGAN_InputFromFlashImage._popen = None
                     self.cancel(context)
@@ -342,7 +342,7 @@ class MAT_OT_StatusUpdater(Operator):
                     MAT_OT_MATGAN_SuperResolution._popen = None
                     self._thread = None
                     self.cancel(context)
-                    gan.progress += f" Elapsed time:{time.time()-self._sTime:.2f}"
+                    gan.progress += f" Elapsed time: {time.time()-self._sTime:.3f}"
                     return {'CANCELLED'}
             
             elif MAT_OT_MATGAN_GetInterpolations._popen:
@@ -351,7 +351,7 @@ class MAT_OT_StatusUpdater(Operator):
                         line = self._q.get_nowait()
                         print(line)
                         gan.progress = line
-                        gan.progress += f" Elapsed time:{time.time()-self._sTime:.2f}"
+                        gan.progress += f" Elapsed time: {time.time()-self._sTime:.3f}"
                         redraw_all(context)
                     except:
                         pass
@@ -367,7 +367,7 @@ class MAT_OT_StatusUpdater(Operator):
                         img = bpy.data.images.load(dir)
                         img.name = os.path.split(dir)[1]
                     gan.progress = "Material interpolations generated."
-                    gan.progress += f" Elapsed time:{time.time()-self._sTime:.2f}"
+                    gan.progress += f" Elapsed time: {time.time()-self._sTime:.3f}"
                     copy_to_cache(os.path.join(gan.directory, 'out'))
                     update_matgan(cache_path)
                     redraw_all(context)
@@ -383,7 +383,7 @@ class MAT_OT_StatusUpdater(Operator):
                         print(line)
                         update_neural(os.path.join(gan.directory, 'out'))
                         gan.progress = line
-                        gan.progress += f" Elapsed time:{time.time()-self._sTime:.2f}"
+                        gan.progress += f" Elapsed time: {time.time()-self._sTime:.3f}"
                         redraw_all(context)
                     except:
                         pass
@@ -391,7 +391,7 @@ class MAT_OT_StatusUpdater(Operator):
                     copy_to_cache(os.path.join(gan.directory, 'out'))
                     update_neural(cache_path)
                     gan.progress = "Material generated."
-                    gan.progress += f" Elapsed time:{time.time()-self._sTime:.2f}"
+                    gan.progress += f" Elapsed time: {time.time()-self._sTime:.3f}"
                     redraw_all(context)
                     MAT_OT_NEURAL_Generator._popen = None
                     self.cancel(context)
@@ -404,7 +404,7 @@ class MAT_OT_StatusUpdater(Operator):
                         line = self._q.get_nowait()
                         print(line)
                         gan.progress = line
-                        gan.progress += f" Elapsed time:{time.time()-self._sTime:.2f}"
+                        gan.progress += f" Elapsed time: {time.time()-self._sTime:.3f}"
                         redraw_all(context)
                     except:
                         pass
@@ -420,7 +420,7 @@ class MAT_OT_StatusUpdater(Operator):
                         img = bpy.data.images.load(dir)
                         img.name = os.path.split(dir)[1]
                     gan.progress = "Material interpolations generated."
-                    gan.progress += f" Elapsed time:{time.time()-self._sTime:.2f}"
+                    gan.progress += f" Elapsed time: {time.time()-self._sTime:.3f}"
                     copy_to_cache(os.path.join(gan.directory, 'out'))
                     update_neural(cache_path)
                     redraw_all(context)
