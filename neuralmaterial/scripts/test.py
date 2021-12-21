@@ -56,7 +56,7 @@ if __name__ == '__main__':
     )
 
     # load all images in folder
-    image_dirs = [str(p) for p in Path(args.input_path).iterdir() if p.is_file() and p.suffix == '.png']
+    image_dirs = [str(p) for p in Path(args.input_path).iterdir() if p.is_file() and (p.suffix == '.png' or p.suffix == '.jpg')]
 
     # read first image in dir, change if required
     image = tfm(io.read_image(image_dirs[0]))[None]
