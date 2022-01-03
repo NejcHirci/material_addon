@@ -1,7 +1,5 @@
 import bpy
-import os
-import sys
-import subprocess
+from . gui import MAT_PT_GeneratorPanel
 
 def update_mixmat_interpolate(self, context):
     mat = bpy.data.materials["mix_mat"]
@@ -18,8 +16,9 @@ def update_mixmat_direction(self, context):
     group.node_tree = bpy.data.node_groups.get(context.scene.mixmat_properties.material)
     links.new(group.outputs[0], mix_shader.inputs[1])
 
-    
-    
+    bpy.data.materials[context.scene.mixmat_properties.material].preview.reload()
+
+
 
 class MaterialGANProps(bpy.types.PropertyGroup):
     num_rend: bpy.props.IntProperty( name="N", description="Number of images used for material generation",
@@ -27,7 +26,7 @@ class MaterialGANProps(bpy.types.PropertyGroup):
     epochs: bpy.props.IntProperty(name="Epochs", description="Number of iterations for material generation",
         default=2000, min=100, max=10000, options={'SKIP_SAVE'})
     directory: bpy.props.StringProperty(name="Import folder", description="The folder to import images from",
-        default="")
+        default="", options={'SKIP_SAVE'})
     progress: bpy.props.StringProperty(name="Progress value", description="", default="Not started.",
         options={'SKIP_SAVE'})
     h_res : bpy.props.IntProperty(name="Super resolution height", subtype="PIXEL", description="Height resolution for upscaling", \
@@ -41,17 +40,18 @@ class NeuralMaterialProps(bpy.types.PropertyGroup):
     epochs: bpy.props.IntProperty(name="Epochs", description="Number of iterations for material generation",
         default=2000, min=100, max=10000, options={'SKIP_SAVE'})
     directory: bpy.props.StringProperty(name="Import folder", description="The folder to import images from",
-        default="")
+        default="", options={'SKIP_SAVE'})
     progress: bpy.props.StringProperty(name="Progress value", description="", default="Not started.",
         options={'SKIP_SAVE'})
     h_res : bpy.props.IntProperty(name="Super resolution height", subtype="PIXEL", description="Height resolution for upscaling", \
         default=1024, min=512, max=8096)
     w_res : bpy.props.IntProperty(name="Super resolution width", subtype="PIXEL", description="Width resolution for upscaling", \
         default=1024, min=512, max=8096)
+    seed : bpy.props.IntProperty(name="Seed", description="Seed used for material generation", default=42, min=0, max=100000)
 
 class MixMaterialProps(bpy.types.PropertyGroup):
     directory: bpy.props.StringProperty(name="Import folder", description="The folder to import images from",
-        default="")
+        default="", options={'SKIP_SAVE'})
     progress: bpy.props.StringProperty(name="Progress value", description="", default="Not started.",
         options={'SKIP_SAVE'})
     material: bpy.props.EnumProperty(name="Preset materials", description="", items= { 
@@ -69,10 +69,10 @@ class MixMaterialProps(bpy.types.PropertyGroup):
 
 def register():
     bpy.types.Scene.matgan_properties = bpy.props.PointerProperty(type=MaterialGANProps)
-    bpy.types.Scene.neuralmat_properties = bpy.props.PointerProperty(type=NeuralMaterialProps)
+    bpy.types.Scene.neural_properties = bpy.props.PointerProperty(type=NeuralMaterialProps)
     bpy.types.Scene.mixmat_properties = bpy.props.PointerProperty(type=MixMaterialProps)
 
 def unregister():
     del bpy.types.Scene.matgan_properties
-    del bpy.types.Scene.neuralmat_properties
+    del bpy.types.Scene.neural_properties
     del bpy.types.Scene.mixmat_properties

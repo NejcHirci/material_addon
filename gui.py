@@ -1,9 +1,5 @@
-import functools
 import bpy
-import sys
 import glob
-import subprocess
-from bpy_extras.io_utils import ImportHelper
 from bpy.types import Panel, Operator
 from bpy.app.handlers import persistent
 import os
@@ -12,7 +8,7 @@ from queue import Queue
 
 from . mix_ops import *
 from . matgan_ops import *
-from . neuralmat_ops import *
+from . neural_ops import *
 
 cache_path = os.path.join(Path(__file__).parent.resolve(), '.cache')
 
@@ -34,6 +30,10 @@ def on_addon_load(dummy):
     MAT_OT_MATGAN_Generator._popen = None
     MAT_OT_MATGAN_InputFromFlashImage._popen = None
     MAT_OT_MATGAN_SuperResolution._popen = None
+
+    bpy.context.scene.matgan_properties.directory = bpy.path.abspath("//") + 'matgan_demos\\'
+    bpy.context.scene.neural_properties.directory = bpy.path.abspath("//") + 'neural_demos\\'
+    bpy.context.scene.mixmat_properties.directory = bpy.path.abspath("//") + 'mixmat_demos\\'
 
     if not os.path.exists(cache_path):
         os.makedirs(cache_path)
@@ -77,7 +77,8 @@ def register():
                 + 'generating textures from albedo with mix blender shader nodes for editing.')
         },
         default='MatGAN',
-        update=update_active_mat
+        update=update_active_mat,
+        options={'SKIP_SAVE'}
     )
 
 def unregister():
@@ -92,6 +93,7 @@ class MAT_PT_GeneratorPanel(Panel):
 
     thumb_scale = 8.0
     check_existing = False
+    mix_preview = None
 
     def draw_matgan(self, context):
         layout = self.layout
@@ -175,10 +177,11 @@ class MAT_PT_GeneratorPanel(Panel):
                 if id == 4:
                     in_box = cols.box()
                     col = in_box.column()
-                    col.template_icon(icon_value=bpy.data.images[f'{mode}-render.png'].preview.icon_id, scale=10)
+                    col.template_preview(bpy.data.materials[f'{mode}_mat'], show_buttons=False)
                     col.label(text="Current material")
                 name = os.path.split(dir)[1]
                 img = bpy.data.images[name]
+                img.preview_ensure()
                 in_box = cols.box()
                 col = in_box.column()
                 col.template_icon(icon_value=img.preview.icon_id, scale=10)
@@ -186,38 +189,43 @@ class MAT_PT_GeneratorPanel(Panel):
                 operator.direction = name[0]
                 id += 1
             
-    def draw_neuralmat(self, context):
+    def draw_neural(self, context):
         layout = self.layout
-        neuralmat = bpy.context.scene.neuralmat_properties
+        neural = bpy.context.scene.neural_properties
 
         # ================================================
         # Draw NeuralMaterial props and operators
         # ================================================
 
         row = layout.row()
-        row.prop(neuralmat, "progress", emboss=False, text="Status")
+        row.prop(neural, "progress", emboss=False, text="Status")
         
         row = layout.row()
         col = row.column()
-        col.prop(neuralmat, "num_rend", text="Num of images")
+        col.prop(neural, "num_rend", text="Images")
         col = row.column()
-        col.prop(neuralmat, "epochs", text="Epochs")
+        col.prop(neural, "epochs", text="Epochs")
+        col = row.column()
+        col.prop(neural, "seed", text="Seed")
         
         row = layout.row()
         col = row.column()
-        col.prop(neuralmat, "h_res", text="Height resolution")
+        col.prop(neural, "h_res", text="Height resolution")
         col = row.column()
-        col.prop(neuralmat, "w_res", text="Width resolution")
+        col.prop(neural, "w_res", text="Width resolution")
         
         row = layout.row()
-        row.prop(neuralmat, "directory", text="Directory")
-        row.operator("neuralmat.file_browser", icon="FILE_FOLDER", text="")
+        row.prop(neural, "directory", text="Directory")
+        row.operator("neural.file_browser", icon="FILE_FOLDER", text="")
 
         row = layout.row()
         col = row.column()
-        col.operator("neuralmat.generator", text="Generate Material") 
+        col.operator("neural.generator", text="Generate Material") 
         col = row.column()
-        col.operator("neuralmat.stop_generator", text="", icon="PAUSE")
+        col.operator("neural.stop_generator", text="", icon="PAUSE")
+        row = layout.row()
+        col = row.column()
+        col.operator("neural.reseed", text="Reseed Material")
 
         layout.separator()
 
@@ -226,7 +234,7 @@ class MAT_PT_GeneratorPanel(Panel):
         # ================================================
 
         row = layout.row()
-        row.operator("neuralmat.get_interpolations", text="Get interpolations")
+        row.operator("neural.get_interpolations", text="Get interpolations")
 
         layout.separator()
 
@@ -235,7 +243,7 @@ class MAT_PT_GeneratorPanel(Panel):
         # ================================================
 
         if MAT_OT_NEURAL_GetInterpolations._popen is None and MAT_OT_NEURAL_Generator._popen is None:
-            self.draw_gallery(context, neuralmat, "neural")
+            self.draw_gallery(context, neural, "neural")
 
     def draw_mixmat(self, context):
         layout = self.layout
@@ -269,14 +277,14 @@ class MAT_PT_GeneratorPanel(Panel):
         if 'generated' in mix.progress:
             layout.separator()
             row = layout.row()
-            row.template_preview(bpy.data.materials["mix_mat"], show_buttons=False)
+            MAT_PT_GeneratorPanel.mix_preview = row.template_preview(bpy.data.materials[mix.material], show_buttons=False)
 
-    def draw(self, context):
+    def draw(self, context):        
         self.layout.prop(context.scene, 'SelectWorkflow')
         if context.scene.SelectWorkflow == 'MatGAN':
             self.draw_matgan(context)
         elif context.scene.SelectWorkflow == 'NeuralMAT':
-            self.draw_neuralmat(context)
+            self.draw_neural(context)
         elif context.scene.SelectWorkflow == 'MixMAT':
             self.draw_mixmat(context)
         
@@ -376,7 +384,7 @@ class MAT_OT_StatusUpdater(Operator):
                     return {'CANCELLED'}
 
             elif MAT_OT_NEURAL_Generator._popen:
-                gan = bpy.context.scene.neuralmat_properties
+                gan = bpy.context.scene.neural_properties
                 if MAT_OT_NEURAL_Generator._popen.poll() is None:
                     try:
                         line = self._q.get_nowait()
@@ -398,7 +406,7 @@ class MAT_OT_StatusUpdater(Operator):
                     return {'CANCELLED'}
 
             elif MAT_OT_NEURAL_GetInterpolations._popen:
-                gan = bpy.context.scene.neuralmat_properties
+                gan = bpy.context.scene.neural_properties
                 if MAT_OT_NEURAL_GetInterpolations._popen.poll() is None:
                     try:
                         line = self._q.get_nowait()

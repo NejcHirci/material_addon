@@ -5,7 +5,6 @@ import sys
 import numpy as np
 from matplotlib import pyplot as plt
 import shutil
-from pupil_apriltags import Detector
 import cv2
 import os
 import pickle
@@ -21,8 +20,11 @@ def rotate_needed(img):
     s = 8
     img = img.resize((round(img.width/s), round(img.height/s)), Image.LANCZOS)
     img = np.array(img.convert('L'))
-    detector = Detector()
-    result = detector.detect(img)
+
+    arucoDict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_6x6_50)
+    arucoParams = cv2.aruco.DetectorParameters_create()
+    result = cv2.aruco.detectMarkers(img, arucoDict, parameters=arucoParams)
+
     c = result[0].corners
     c1,c2,c3,c4 = np.split(c,4, axis=0)
     c1 = c1[0];c2 = c2[0];c3 = c3[0];c4 = c4[0]
@@ -45,8 +47,11 @@ def marker_detection(img, in_dir, idx, flag=False):
 
     img_gray = img_resize.convert('L')
     img_gray = np.array(img_gray)
-    detector = Detector()
-    result = detector.detect(img_gray)
+
+    arucoDict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_6x6_50)
+    arucoParams = cv2.aruco.DetectorParameters_create()
+
+    result = cv2.aruco.detectMarkers(img_gray, arucoDict, parameters=arucoParams)
 
     tag_id_list = []
     center_list = []
