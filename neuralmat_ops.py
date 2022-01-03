@@ -160,8 +160,52 @@ class MAT_OT_NEURAL_Generator(Operator):
         
         return {'FINISHED'}
 
+class MAT_OT_NEURAL_Reseed(Operator):
+    bl_idname = "neuralmat.reseed"
+    bl_label = "Neural material reseed"
+    bl_description = "Generate new learned material with new seed"
+
+    @classmethod
+    def poll(self, context):
+        return "Material" in bpy.context.scene.neuralmat_properties.progress
+
+    def execute(self, context):
+        neuralmat = bpy.context.scene.neuralmat_properties
+
+        in_dir  = neuralmat.directory
+        out_dir = os.path.join(neuralmat.directory, 'out')
+
+        if not Path(out_dir, 'weights.ckpt').is_file():
+            neuralmat.progress = 'Material not generated or corrupted.'
+            return {'FINISHED'}
+
+        model_path = './trainings/Neuralmaterial'
+        epochs = str(neuralmat.epochs)
+
+        # Call to generate texture maps
+        python_exe = sys.executable
+        process = subprocess.Popen([python_exe, '-u', './scripts/test.py',
+                '--model', model_path,
+                '--input_path', in_dir,
+                '--output_path', out_dir,
+                '--epochs', epochs,
+                '--h', str(neuralmat.h_res),
+                '--w', str(neuralmat.w_res),
+                '--seed', str(neuralmat.seed),
+                '--reseed'], stdout=subprocess.PIPE, cwd=str(Path(base_script_path, 'neuralmaterial')))
+
+        MAT_OT_NEURAL_Generator._popen = process
+
+        neuralmat.progress = 'Reseeding material with {}'.format(neuralmat.seed)
+        
+        bpy.ops.wm.modal_status_updater()
+        
+        return {'FINISHED'}
+
+
+
 class MAT_OT_NEURAL_EditMove(Operator):
-    bl_idname = "neural.edit_move"
+    bl_idname = "neuralmat.edit_move"
     bl_label = "Move material in desired material directions."
     bl_description = "Finds 9 neighbouring materials in latent space directions from the newly chosen one."
 
@@ -234,7 +278,7 @@ class MAT_OT_NEURAL_EditMove(Operator):
         
         return {'FINISHED'}
 
-class MAT_OT_MATGAN_StopGenerator(Operator):
+class MAT_OT_NEURAL_StopGenerator(Operator):
     bl_idname = "neuralmat.stop_generator"
     bl_label = "Stop generator material"
     bl_description = "Stop generate base material from flash images."

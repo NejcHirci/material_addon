@@ -48,6 +48,7 @@ class NeuralMaterialProps(bpy.types.PropertyGroup):
         default=1024, min=512, max=8096)
     w_res : bpy.props.IntProperty(name="Super resolution width", subtype="PIXEL", description="Width resolution for upscaling", \
         default=1024, min=512, max=8096)
+    seed : bpy.props.IntProperty(name="Seed", description="Seed used for material generation", default=42, min=0, max=100000)
 
 class MixMaterialProps(bpy.types.PropertyGroup):
     directory: bpy.props.StringProperty(name="Import folder", description="The folder to import images from",

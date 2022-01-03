@@ -199,9 +199,11 @@ class MAT_PT_GeneratorPanel(Panel):
         
         row = layout.row()
         col = row.column()
-        col.prop(neuralmat, "num_rend", text="Num of images")
+        col.prop(neuralmat, "num_rend", text="Images")
         col = row.column()
         col.prop(neuralmat, "epochs", text="Epochs")
+        col = row.column()
+        col.prop(neuralmat, "seed", text="Seed")
         
         row = layout.row()
         col = row.column()
@@ -218,6 +220,9 @@ class MAT_PT_GeneratorPanel(Panel):
         col.operator("neuralmat.generator", text="Generate Material") 
         col = row.column()
         col.operator("neuralmat.stop_generator", text="", icon="PAUSE")
+        row = layout.row()
+        col = row.column()
+        col.operator("neuralmat.reseed", text="Reseed Material")
 
         layout.separator()
 
@@ -235,7 +240,7 @@ class MAT_PT_GeneratorPanel(Panel):
         # ================================================
 
         if MAT_OT_NEURAL_GetInterpolations._popen is None and MAT_OT_NEURAL_Generator._popen is None:
-            self.draw_gallery(context, neuralmat, "neural")
+            self.draw_gallery(context, neuralmat, "neuralmat")
 
     def draw_mixmat(self, context):
         layout = self.layout
