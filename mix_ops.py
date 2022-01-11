@@ -7,6 +7,7 @@
 import os
 from pathlib import Path
 from threading import Thread
+import time
 
 import bpy
 from bpy.types import Operator
@@ -73,6 +74,8 @@ class MAT_OT_MIX_Generator(Operator):
     def execute(self, context):
         mixmat = bpy.context.scene.mixmat_properties
 
+        sTime = time.time()
+
         image_dirs = [str(p) for p in Path(mixmat.directory).iterdir() if p.is_file() and p.suffix == '.png']
 
         out_dir = Path(mixmat.directory, 'out')
@@ -109,6 +112,7 @@ class MAT_OT_MIX_Generator(Operator):
         bpy.context.scene.use_nodes = False
         update_mix(str(out_dir))
         mixmat.progress = "Textures generated."
+        mixmat.progress += f" Elapsed time: {time.time()-sTime:.3f}"
 
         bpy.context.window.cursor_set("DEFAULT")
 

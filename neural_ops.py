@@ -67,7 +67,7 @@ def replace_file(src_path, dst_path, retries=10, sleep=0.1):
 
 
 class MAT_OT_NEURAL_GetInterpolations(Operator):
-    bl_idname = "neuralmat.get_interpolations"
+    bl_idname = "neural.get_interpolations"
     bl_label = "Get interpolations"
     bl_description = "Generate interpolations in discovered directions"
 
@@ -75,13 +75,13 @@ class MAT_OT_NEURAL_GetInterpolations(Operator):
 
     @classmethod
     def poll(self, context):
-        return "Material" in bpy.context.scene.neuralmat_properties.progress
+        return "Material" in bpy.context.scene.neural_properties.progress
 
     def execute(self, context):
-        neuralmat = bpy.context.scene.neuralmat_properties
+        neural = bpy.context.scene.neural_properties
 
-        in_dir  = neuralmat.directory
-        weight_dir = os.path.join(neuralmat.directory, 'out', 'weights.ckpt')
+        in_dir  = neural.directory
+        weight_dir = os.path.join(neural.directory, 'out', 'weights.ckpt')
 
         model_path = './trainings/Neuralmaterial'
 
@@ -91,12 +91,12 @@ class MAT_OT_NEURAL_GetInterpolations(Operator):
                 '--model', model_path,
                 '--input_path', in_dir,
                 '--weight_path', weight_dir,
-                '--h', str(neuralmat.h_res),
-                '--w', str(neuralmat.w_res)], stdout=subprocess.PIPE, cwd=str(Path(base_script_path, 'neuralmaterial')))
+                '--h', str(neural.h_res),
+                '--w', str(neural.w_res)], stdout=subprocess.PIPE, cwd=str(Path(base_script_path, 'neuralmaterial')))
 
         MAT_OT_NEURAL_GetInterpolations._popen = process
 
-        neuralmat.progress = 'Generating interpolations ...'
+        neural.progress = 'Generating interpolations ...'
         
         bpy.ops.wm.modal_status_updater()
         
@@ -104,14 +104,16 @@ class MAT_OT_NEURAL_GetInterpolations(Operator):
 
 class MAT_OT_NEURAL_FileBrowser(Operator, ImportHelper):
     """File browser operator"""
-    bl_idname= "neuralmat.file_browser"
+    bl_idname= "neural.file_browser"
     bl_label = "Selects folder with data"
     
     filename_ext = ""
 
     def execute(self, context):
+        print(self.properties)
+        print(self.properties.filepath)
         fdir = self.properties.filepath
-        gan = bpy.context.scene.neuralmat_properties
+        gan = bpy.context.scene.neural_properties
         gan.directory = os.path.dirname(fdir)
         fdir = os.path.dirname(fdir)
         if os.path.isdir(os.path.join(fdir, 'out')):
@@ -122,7 +124,7 @@ class MAT_OT_NEURAL_FileBrowser(Operator, ImportHelper):
         return {'FINISHED'}
 
 class MAT_OT_NEURAL_Generator(Operator):
-    bl_idname = "neuralmat.generator"
+    bl_idname = "neural.generator"
     bl_label = "Generate neural material"
     bl_description = "Generate base material from flash images"
 
@@ -133,14 +135,14 @@ class MAT_OT_NEURAL_Generator(Operator):
         return MAT_OT_NEURAL_Generator._popen is None and MAT_OT_NEURAL_GetInterpolations._popen is None
 
     def execute(self, context):
-        neuralmat = bpy.context.scene.neuralmat_properties
+        neural = bpy.context.scene.neural_properties
 
-        in_dir  = neuralmat.directory
-        out_dir = os.path.join(neuralmat.directory, 'out')
+        in_dir  = neural.directory
+        out_dir = os.path.join(neural.directory, 'out')
 
         model_path = './trainings/Neuralmaterial'
-        N = neuralmat.num_rend
-        epochs = str(neuralmat.epochs)
+        N = neural.num_rend
+        epochs = str(neural.epochs)
 
         # Call to generate texture maps
         python_exe = sys.executable
@@ -149,12 +151,54 @@ class MAT_OT_NEURAL_Generator(Operator):
                 '--input_path', in_dir,
                 '--output_path', out_dir,
                 '--epochs', epochs,
-                '--h', str(neuralmat.h_res),
-                '--w', str(neuralmat.w_res)], stdout=subprocess.PIPE, cwd=str(Path(base_script_path, 'neuralmaterial')))
+                '--h', str(neural.h_res),
+                '--w', str(neural.w_res)], stdout=subprocess.PIPE, cwd=str(Path(base_script_path, 'neuralmaterial')))
 
         MAT_OT_NEURAL_Generator._popen = process
 
-        neuralmat.progress = 'Epoch: [{}/{}]   Loss: 0.0 0.0'.format(1, neuralmat.epochs)
+        neural.progress = 'Epoch: [{}/{}]   Loss: 0.0 0.0'.format(1, neural.epochs)
+        
+        bpy.ops.wm.modal_status_updater()
+        
+        return {'FINISHED'}
+
+class MAT_OT_NEURAL_Reseed(Operator):
+    bl_idname = "neural.reseed"
+    bl_label = "Neural material reseed"
+    bl_description = "Generate new learned material with new seed"
+
+    @classmethod
+    def poll(self, context):
+        return "Material" in bpy.context.scene.neural_properties.progress
+
+    def execute(self, context):
+        neural = bpy.context.scene.neural_properties
+
+        in_dir  = neural.directory
+        out_dir = os.path.join(neural.directory, 'out')
+
+        if not Path(out_dir, 'weights.ckpt').is_file():
+            neural.progress = 'Material not generated or corrupted.'
+            return {'FINISHED'}
+
+        model_path = './trainings/Neuralmaterial'
+        epochs = str(neural.epochs)
+
+        # Call to generate texture maps
+        python_exe = sys.executable
+        process = subprocess.Popen([python_exe, '-u', './scripts/test.py',
+                '--model', model_path,
+                '--input_path', in_dir,
+                '--output_path', out_dir,
+                '--epochs', epochs,
+                '--h', str(neural.h_res),
+                '--w', str(neural.w_res),
+                '--seed', str(neural.seed),
+                '--reseed'], stdout=subprocess.PIPE, cwd=str(Path(base_script_path, 'neuralmaterial')))
+
+        MAT_OT_NEURAL_Generator._popen = process
+
+        neural.progress = 'Reseeding material with {}'.format(neural.seed)
         
         bpy.ops.wm.modal_status_updater()
         
@@ -213,10 +257,10 @@ class MAT_OT_NEURAL_EditMove(Operator):
 
     @classmethod
     def poll(self, context):
-        return "Material" in bpy.context.scene.neuralmat_properties.progress
+        return "Material" in bpy.context.scene.neural_properties.progress
 
     def execute(self, context):
-        gan = bpy.context.scene.neuralmat_properties
+        gan = bpy.context.scene.neural_properties
         interp_dir = os.path.join(gan.directory, 'interps')
 
         # First unlink files
@@ -279,7 +323,7 @@ class MAT_OT_NEURAL_EditMove(Operator):
         return {'FINISHED'}
 
 class MAT_OT_NEURAL_StopGenerator(Operator):
-    bl_idname = "neuralmat.stop_generator"
+    bl_idname = "neural.stop_generator"
     bl_label = "Stop generator material"
     bl_description = "Stop generate base material from flash images."
 

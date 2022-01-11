@@ -11,7 +11,7 @@ from lib.core.utils import seed_everything
 from lib.core.trainer import Trainer
 from lib.main import NeuralMaterial
 
-def save_png(img, path, gamma=1/2.2):
+def save_png(img, path, gamma=1):
     img = img[0,:]
     if gamma < 1: img = img.clip(min=1e-6)
     img = img**gamma
@@ -67,17 +67,17 @@ if __name__ == '__main__':
     output_path.mkdir(parents=True, exist_ok=True)
     weights_path = Path(output_path, 'weights.ckpt')
 
+    # load all images in folder
+    image_dirs = [str(p) for p in Path(args.input_path).iterdir() if p.is_file() and (p.suffix == '.png' or p.suffix == '.jpg')]
+
+    # read first image in dir, change if required
+    image = tfm(io.read_image(image_dirs[0]))[None]
+    image = image.to(device)
+
     if args.reseed:
         state_dict = torch.load(weights_path, map_location=device)
         model.load_state_dict(state_dict)
     else:
-        # load all images in folder
-        image_dirs = [str(p) for p in Path(args.input_path).iterdir() if p.is_file() and (p.suffix == '.png' or p.suffix == '.jpg')]
-
-        # read first image in dir, change if required
-        image = tfm(io.read_image(image_dirs[0]))[None]
-        image = image.to(device)
-
         if weights_path.is_file():
             state_dict = torch.load(weights_path, map_location=device)
             model.load_state_dict(state_dict)

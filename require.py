@@ -33,12 +33,11 @@ if __name__ == "__main__":
                 cuda = subprocess.call(['nvcc', '--version'], stdout=subprocess.PIPE)
                 if b"V11" in cuda.stdout:
                     # CUDA version v11
-                    subprocess.call([python_exe, "-m", "pip", "install", 
-                    "torch==1.9.0+cu111", "torchvision==0.10.0+cu111", "torchaudio===0.9.0", "-f", "https://download.pytorch.org/whl/torch_stable.html"])
+                    subprocess.call([python_exe, "pip3", "install", "-f https://download.pytorch.org/whl/cu113/torch_stable.html torch==1.10.1+cu113 torchvision==0.11.2+cu113 torchaudio===0.10.1+cu113"])
                 elif b"V10" in cuda.stdout:
                     # CUDA version v10
                     subprocess.call([python_exe, "-m", "pip", "install",
-                    "torch==1.9.0+cu102", "torchvision==0.10.0+cu111", "torchaudio===0.9.0", "-f", "https://download.pytorch.org/whl/torch_stable.html"])
+                    "torch==1.10.1+cu102 torchvision==0.11.2+cu102 torchaudio===0.10.1+cu102 -f https://download.pytorch.org/whl/cu102/torch_stable.html"])
             except:
                 # No CUDA support
                 subprocess.call([python_exe, "-m", "pip", "install", "torch", "torchvision", "torchaudio"])
@@ -49,7 +48,7 @@ if __name__ == "__main__":
             print("OpenCV already installed.")
         except ImportError:
             print("OpenCV to be installed. ")
-            subprocess.call([python_exe, "-m", "pip", "install", "opencv-python"])
+            subprocess.call([python_exe, "-m", "pip", "install", "opencv-contrib-python"])
             
         # Get Matplotlib
         try:
@@ -90,14 +89,6 @@ if __name__ == "__main__":
         except ImportError:
             print('kornia to be installed.')
             subprocess.call([python_exe, "-m", "pip", "install","--only-binary=numpy", "kornia"])  
-
-        # Get Pupil Apriltags
-        try:
-            import pupil_apriltags
-            print('pupil_apriltags already installed.')
-        except ImportError:
-            print('pupil_apriltags to be installed.')
-            subprocess.call([python_exe, "-m", "pip", "install","pupil_apriltags"])  
         
         # Get yaml
         try:
