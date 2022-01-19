@@ -1,5 +1,4 @@
 import bpy
-from . gui import MAT_PT_GeneratorPanel
 
 def update_mixmat_interpolate(self, context):
     mat = bpy.data.materials["mix_mat"]
@@ -17,7 +16,6 @@ def update_mixmat_direction(self, context):
     links.new(group.outputs[0], mix_shader.inputs[1])
 
     bpy.data.materials[context.scene.mixmat_properties.material].preview.reload()
-
 
 
 class MaterialGANProps(bpy.types.PropertyGroup):

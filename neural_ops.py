@@ -246,8 +246,6 @@ class MAT_OT_NEURAL_Reseed(Operator):
         
         return {'FINISHED'}
 
-
-
 class MAT_OT_NEURAL_EditMove(Operator):
     bl_idname = "neuralmat.edit_move"
     bl_label = "Move material in desired material directions."
