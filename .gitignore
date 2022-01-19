@@ -1,4 +1,5 @@
 # Project specific
+material_addon_updater/
 
 # Python specific
 __pycache__
