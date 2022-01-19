@@ -131,6 +131,8 @@ class DemoPreferences(bpy.types.AddonPreferences):
 		# ops.url=addon_updater_ops.updater.website
 
 classes = (
+	DemoPreferences,
+	DemoUpdaterPanel,
     props.MixMaterialProps,
     mix_ops.MAT_OT_MIX_Generator,
     neural_ops.MAT_OT_NEURAL_Generator,
@@ -155,7 +157,7 @@ classes = (
 )
 
 def register():
-    #addon_updater_ops.register(bl_info)
+    addon_updater_ops.register(bl_info)
 
     for cls in classes:
         bpy.utils.register_class(cls)
@@ -164,7 +166,7 @@ def register():
     props.register()
 
 def unregister():
-    #addon_updater_ops.unregister()
+    addon_updater_ops.unregister()
 
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
