@@ -177,7 +177,9 @@ class MAT_PT_GeneratorPanel(Panel):
                 if id == 4:
                     in_box = cols.box()
                     col = in_box.column()
-                    col.template_preview(bpy.data.materials[f'{mode}_mat'], show_buttons=False)
+                    img = bpy.data.images[f'{mode}-render.png']
+                    img.preview_ensure()
+                    col.template_icon(icon_value=img.preview.icon_id, scale=10)
                     col.label(text="Current material")
                 name = os.path.split(dir)[1]
                 img = bpy.data.images[name]

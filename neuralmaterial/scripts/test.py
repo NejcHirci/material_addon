@@ -11,10 +11,11 @@ from lib.core.utils import seed_everything
 from lib.core.trainer import Trainer
 from lib.main import NeuralMaterial
 
-def save_png(img, path, gamma=1):
+def save_png(img, path, gamma=1.0):
     img = img[0,:]
     if gamma < 1: img = img.clip(min=1e-6)
-    img = img**gamma
+    img = img ** (1.0 / gamma)
+    img = img.clamp(0.0, 1.0)
     io.write_png((img * 255).byte().cpu(), path, compression_level=0)
 
 
@@ -102,6 +103,7 @@ if __name__ == '__main__':
         if k == 'normal':
             v = (v + 1) / 2
         
-        save_png(v, str(Path(output_path, f'{k}.png')))
+        gamma = 1.0 if k == 'render' else 2.2
+        save_png(v, str(Path(output_path, f'{k}.png')), gamma=gamma)
 
     

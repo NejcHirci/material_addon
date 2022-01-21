@@ -120,6 +120,8 @@ if __name__ == '__main__':
                 if k == 'normal':
                     v = (v + 1) / 2
                 
-                save_png(v, str(Path(output_path, f'{sem_id}_{inter_idx+1}_{k}.png')))
+                gamma = 1.0 if k == 'render' else 2.2
+                
+                save_png(v, str(Path(output_path, f'{sem_id}_{inter_idx+1}_{k}.png')), gamma=gamma)
         
         sem_id += 1

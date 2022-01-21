@@ -152,8 +152,8 @@ classes = (
     matgan_ops.MAT_OT_MATGAN_FileBrowser,
     neural_ops.MAT_OT_NEURAL_StopGenerator,
     matgan_ops.MAT_OT_MATGAN_EditMove,
+	neural_ops.MAT_OT_NEURAL_EditMove,
     gui.MAT_PT_GeneratorPanel,
-    neural_ops.MAT_OT_NEURAL_EditMove
 )
 
 def register():
