@@ -1,5 +1,6 @@
 # Project specific
 material_addon_updater/
+.vscode/
 
 # Python specific
 __pycache__

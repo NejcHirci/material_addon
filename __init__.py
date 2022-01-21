@@ -11,18 +11,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-bl_info = {
-    "name" : "material_addon",
-    "author" : "Nejc Hirci",
-    "description" : "Provides 3 approaches to material generation from photos.",
-    "blender" : (2, 80, 0),
-    "version" : (0, 0, 1),
-    "location" : "ShaderEditor > Util > MaterialGenerator Util",
-    "doc_url": "https://github.com/NejcHirci/material-addon",
-    "warning" : "",
-    "category" : "Material"
-}
-
 import bpy
 from . import addon_updater_ops
 from . import gui
@@ -30,6 +18,18 @@ from . import matgan_ops
 from . import mix_ops
 from . import neural_ops
 from . import props
+
+bl_info = {
+    "name": "material_addon",
+    "author": "Nejc Hirci",
+    "description": "Provides 3 approaches to material generation from photos.",
+    "blender": (2, 80, 0),
+    "version": (0, 0, 1),
+    "location": "ShaderEditor > Util > MaterialGenerator Util",
+    "doc_url": "https://github.com/NejcHirci/material-addon",
+    "warning": "",
+    "category": "Material"
+}
 
 
 class DemoUpdaterPanel(bpy.types.Panel):

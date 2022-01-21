@@ -1,13 +1,10 @@
 import subprocess
 import sys
-import os
-
-from numpy import core
-import bpy
 
 
 if __name__ == "__main__":
-    #install required packages
+    # install required packages
+
     if sys.platform.startswith('win32'):
         print("Installing dependencies ...")
 
@@ -16,15 +13,16 @@ if __name__ == "__main__":
 
         # upgrade pip
         subprocess.call([python_exe, "-m", "ensurepip"])
-        subprocess.call([python_exe, "-m", "pip", "install", "--upgrade", "pip"])
+        subprocess.call([python_exe, "-m",
+                        "pip", "install", "--upgrade", "pip"])
         subprocess.call([python_exe, "-m", "pip", "install", "--upgrade", "setuptools"])
         subprocess.call([python_exe, "-m", "pip", "install", "--upgrade", "wheel"])
 
         # Windows specific install
-        
+
         # Get PyTorch
         try:
-            import torch
+            import torch  # noqa: F401
             print("Pytorch already installed")
         except ImportError:
             print("Pytorch to be installed.")
