@@ -1,9 +1,9 @@
 # Project specific
-material_addon_updater/
 .vscode/
+venv/
 
 # Python specific
-__pycache__
+__pycache__/
 materialGAN/data/
 neuralmaterial/data/
 

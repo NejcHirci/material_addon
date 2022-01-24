@@ -17,17 +17,19 @@ from util import *
 np.set_printoptions(precision=4, suppress=True)
 
 def rotate_needed(img):
-    s = 8
-    img = img.resize((round(img.width/s), round(img.height/s)), Image.LANCZOS)
     img = np.array(img.convert('L'))
-
-    arucoDict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_6x6_50)
+    arucoDict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_APRILTAG_36h11)
     arucoParams = cv2.aruco.DetectorParameters_create()
-    result = cv2.aruco.detectMarkers(img, arucoDict, parameters=arucoParams)
+    (corners, ids, rejected) = cv2.aruco.detectMarkers(img, arucoDict, parameters=arucoParams)
 
-    c = result[0].corners
-    c1,c2,c3,c4 = np.split(c,4, axis=0)
-    c1 = c1[0];c2 = c2[0];c3 = c3[0];c4 = c4[0]
+    # Get the first corner
+    c = corners[0][0]
+
+    c1 = c[1]
+    c2 = c[0]
+    c3 = c[3]
+    c4 = c[2]
+
     if abs((c1[0]+c2[0])-(c3[0]+c4[0])) < abs((c1[1]+c2[1])-(c3[1]+c4[1])):
         if (c1[0]+c4[0]) < (c2[0]+c3[0]):
             return 0
@@ -39,43 +41,37 @@ def rotate_needed(img):
         else:
             return 90
 
-def marker_detection(img, in_dir, idx, flag=False):
-    ##
-    img_width = img.width if img.width > img.height else img.height
-    s = max(1, img_width // 1000)
-    img_resize = img.resize((round(img.width/s), round(img.height/s)), Image.LANCZOS)
+def marker_detection(img, in_dir, idx, flag=True):
+    img_gray = np.array(img)
 
-    img_gray = img_resize.convert('L')
-    img_gray = np.array(img_gray)
-
-    arucoDict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_6x6_50)
+    arucoDict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_APRILTAG_36h11)
     arucoParams = cv2.aruco.DetectorParameters_create()
 
-    result = cv2.aruco.detectMarkers(img_gray, arucoDict, parameters=arucoParams)
+    (corners, ids, rejected) = cv2.aruco.detectMarkers(img_gray, arucoDict, parameters=arucoParams)
 
     tag_id_list = []
-    center_list = []
     corners_list = []
-    for marker in result:
-        tag_id_list.append(marker.tag_id)
-        center_list.append(marker.center.astype('float32') *s)
-        corners_list.append(marker.corners.astype('float32') *s)
+
+    for tag in ids:
+        tag_id_list.append(tag[0])
+
+    for corner in corners:
+        # Convert order from 0123 to 1032
+        coord = corner[0]
+        new_corner = [coord[0], coord[1], coord[2], coord[3]]
+        corners_list.append(np.array(new_corner, dtype='float32'))
 
     if flag:
         plt.imshow(np.array(img))
-        for center in center_list:
-            plt.plot(center[0], center[1], 'k.')
         for corners in corners_list:
             plt.plot(corners[0,0], corners[0,1], 'r.')
             plt.plot(corners[1,0], corners[1,1], 'g.')
             plt.plot(corners[2,0], corners[2,1], 'b.')
             plt.plot(corners[3,0], corners[3,1], 'y.')
         plt.title(idx)
-        # plt.show()
         plt.savefig(os.path.join(in_dir, 'detect_%02d.jpg' % idx))
         plt.close()
-        # exit()
-
+        
     imagePoints = np.vstack(corners_list)
 
     print('%d points are detected in image %d' % (imagePoints.shape[0], idx))
@@ -85,7 +81,6 @@ def marker_detection(img, in_dir, idx, flag=False):
 def preprocess(in_dir, tmp_dir):
     print(os.path.join(in_dir, '*.*'))
     dir_list = sorted(glob.glob(os.path.join(in_dir, '*.*')))
-    print(dir_list)
 
     if len(dir_list) == 0:
         print('No inputs given!')
@@ -108,6 +103,7 @@ def calibrate(imgs, in_dir, objectPoints, flag):
         print('Calibrate image: %d' % idx)
         img = imgs[idx]
         imagePoints_this, tag_list = marker_detection(img, in_dir, idx, flag)
+
         imagePoints_list.append(imagePoints_this)
         objectPoints_this = []
         for tag in tag_list:
@@ -143,7 +139,7 @@ def reorder(arr, list1, list2, list3, list4, list5):
     if not isinstance(list5, list):
         list5 = list(list5)
         
-    id = np.argmax( arr[:,0]+arr[:,1])
+    id = np.argmax(arr[:,0]+arr[:,1])
     arr = move_row_to_end(arr, id)
     list1 = move_element_to_end(list1, id)
     list2 = move_element_to_end(list2, id)
@@ -214,7 +210,7 @@ def process(in_dir, tmp_dir):
     image_size = 17.4
 
     ##
-    objectPoints = obj_points.initObjPoints(image_size) # letter
+    objectPoints = obj_points.initObjPoints(image_size)  # letter
 
     ##
     dir_list = sorted(glob.glob(os.path.join(tmp_dir, 'orig_*.png')))
@@ -228,9 +224,9 @@ def process(in_dir, tmp_dir):
 
     imgs2 = []
     for idx in range(N):
-        print('Undistort image: %d' % idx)
+        # print('Undistort image: %d' % idx)
         img = np.array(imgs[idx])
-        #img = cv2.undistort(img, mtx, dist)
+        # img = cv2.undistort(img, mtx, dist)
         imgs2.append(Image.fromarray(img))
 
     mtx, dist, rvecs, tvecs, objectPoints_list, imagePoints_list = \
@@ -245,8 +241,8 @@ def process(in_dir, tmp_dir):
 
     cameraPos = np.hstack(cameraPos).transpose()
 
-    cameraPos, imgs2, objectPoints_list, imagePoints_list, rvecs, tvecs = \
-        reorder(cameraPos, imgs2, objectPoints_list, imagePoints_list, rvecs, tvecs)
+    # cameraPos, imgs2, objectPoints_list, imagePoints_list, rvecs, tvecs = \
+    #     reorder(cameraPos, imgs2, objectPoints_list, imagePoints_list, rvecs, tvecs)
 
     ##
     xx, yy = np.meshgrid(np.linspace(-image_size/2,image_size/2,10),
@@ -269,12 +265,12 @@ def process(in_dir, tmp_dir):
     # exit()
 
     f = open(os.path.join(tmp_dir,'store.pkl'), 'wb')
-    pickle.dump([imgs2, objectPoints_list, rvecs, tvecs, mtx, dist, cameraPos, image_size], f)
+    pickle.dump([imgs2, objectPoints_list, imagePoints_list, rvecs, tvecs, mtx, dist, cameraPos, image_size], f)
     f.close()
 
 def rectify(in_dir, tmp_dir, h=0.5):
     f = open(os.path.join(tmp_dir,'store.pkl'), 'rb')
-    imgs2, objectPoints_list, rvecs, tvecs, mtx, dist, cameraPos, image_size = pickle.load(f)
+    imgs2, objectPoints_list, imagePoints_list, rvecs, tvecs, mtx, dist, cameraPos, image_size = pickle.load(f)
     f.close()
 
     res = 1600
@@ -298,9 +294,11 @@ def rectify(in_dir, tmp_dir, h=0.5):
         HomoMat, _ = cv2.findHomography(imagePoints, warpPoints)
         img_in = np.array(imgs2[idx])
 
-        # plt.imshow(img_in)
-        # plt.plot(imagePoints[:,0],imagePoints[:,1], 'r.')
-        # plt.show()
+        plt.imshow(img_in)
+        plt.plot(imagePoints[:,0],imagePoints[:,1], 'r.')
+        plt.plot(warpPoints[:,0], warpPoints[:, 1], 'g.')
+        plt.savefig(os.path.join(tmp_dir, 'all_%02d.jpg' % idx))
+        plt.close()
 
         img_out = cv2.warpPerspective(img_in, HomoMat, (res,res))
         img_out_PIL = Image.fromarray(img_out)
@@ -331,7 +329,7 @@ def copy_to_folder(in_dir, out_dir, num_inputs):
     rendered_all.save(os.path.join(out_dir, 'rendered.png'))
 
     # Empty tmp dir
-    shutil.rmtree(in_dir)
+    #shutil.rmtree(in_dir)
 
 
 if __name__ == '__main__':

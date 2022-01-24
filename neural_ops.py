@@ -15,6 +15,7 @@ import bpy
 from bpy.types import Operator
 from bpy_extras.io_utils import ImportHelper
 
+PYTHON_EXE = './venv/Scripts/python.exe'
 base_script_path = Path(__file__).parent.resolve()
 
 def check_remove_img(name):
@@ -86,8 +87,7 @@ class MAT_OT_NEURAL_GetInterpolations(Operator):
         model_path = './trainings/Neuralmaterial'
 
         # Call to generate texture maps
-        python_exe = sys.executable
-        process = subprocess.Popen([python_exe, '-u', './scripts/get_interpolations.py',
+        process = subprocess.Popen([PYTHON_EXE, '-u', './scripts/get_interpolations.py',
                 '--model', model_path,
                 '--input_path', in_dir,
                 '--weight_path', weight_dir,
@@ -145,8 +145,7 @@ class MAT_OT_NEURAL_Generator(Operator):
         epochs = str(neural.epochs)
 
         # Call to generate texture maps
-        python_exe = sys.executable
-        process = subprocess.Popen([python_exe, '-u', './scripts/test.py',
+        process = subprocess.Popen([PYTHON_EXE, '-u', './scripts/test.py',
                 '--model', model_path,
                 '--input_path', in_dir,
                 '--output_path', out_dir,
@@ -185,8 +184,7 @@ class MAT_OT_NEURAL_Reseed(Operator):
         epochs = str(neural.epochs)
 
         # Call to generate texture maps
-        python_exe = sys.executable
-        process = subprocess.Popen([python_exe, '-u', './scripts/test.py',
+        process = subprocess.Popen([PYTHON_EXE, '-u', './scripts/test.py',
                 '--model', model_path,
                 '--input_path', in_dir,
                 '--output_path', out_dir,
@@ -262,8 +260,7 @@ class MAT_OT_NEURAL_EditMove(Operator):
         model_path = './trainings/Neuralmaterial'
 
         # Call to generate texture maps
-        python_exe = sys.executable
-        process = subprocess.Popen([python_exe, '-u', './scripts/get_interpolations.py',
+        process = subprocess.Popen([PYTHON_EXE, '-u', './scripts/get_interpolations.py',
                 '--model', model_path,
                 '--input_path', in_dir,
                 '--weight_path', weight_dir,

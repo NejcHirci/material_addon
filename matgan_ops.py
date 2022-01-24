@@ -18,6 +18,8 @@ import bpy
 from bpy.types import Operator
 from bpy_extras.io_utils import ImportHelper
 
+PYTHON_EXE = './venv/Scripts/python.exe'
+
 base_script_path = Path(__file__).parent.resolve()
 
 def check_remove_img(name):
@@ -97,8 +99,7 @@ class MAT_OT_MATGAN_Generator(Operator):
         lr = 0.02
 
         # Call to generate texture maps
-        python_exe = sys.executable
-        process = subprocess.Popen([python_exe, '-u', './materialGAN/src/optim.py', 
+        process = subprocess.Popen([PYTHON_EXE, '-u', './materialGAN/src/optim.py', 
                 '--in_dir', in_dir,
                 '--out_dir', out_dir,
                 '--vgg_weight_dir', vgg_dir,
@@ -144,8 +145,7 @@ class MAT_OT_MATGAN_GetInterpolations(Operator):
         noise_path = os.path.join(out, 'optim_noise.pt')
 
         # Call to generate texture maps
-        python_exe = sys.executable
-        process = subprocess.Popen([python_exe, '-u', './sefa/get_directions.py', 
+        process = subprocess.Popen([PYTHON_EXE, '-u', './sefa/get_directions.py', 
                 '--save_dir', save_dir,
                 '--latent_path', latent_path,
                 '--noise_path', noise_path
@@ -189,8 +189,7 @@ class MAT_OT_MATGAN_InputFromFlashImage(Operator):
         in_dir  = base_dir
         out_dir = os.path.join(base_dir, 'input')
 
-        python_exe = sys.executable
-        process = subprocess.Popen([python_exe, '-u', './materialGAN/tools/generate_inputs.py',
+        process = subprocess.Popen([PYTHON_EXE, '-u', './materialGAN/tools/generate_inputs.py',
                     '--in_dir', in_dir,
                     '--out_dir', out_dir], stdout=subprocess.PIPE, cwd=str(base_script_path))
 
@@ -261,8 +260,7 @@ class MAT_OT_MATGAN_EditMove(Operator):
         update_matgan(out)
 
         # Call to generate texture maps
-        python_exe = sys.executable
-        process = subprocess.Popen([python_exe, '-u', './sefa/get_directions.py', 
+        process = subprocess.Popen([PYTHON_EXE, '-u', './sefa/get_directions.py', 
                 '--save_dir', interp_dir,
                 '--latent_path', old_latent_path,
                 '--noise_path', os.path.join(out, 'optim_noise.pt')
@@ -296,8 +294,7 @@ class MAT_OT_MATGAN_SuperResolution(Operator):
         h = gan.h_res
         w = gan.w_res
 
-        python_exe = sys.executable
-        process = subprocess.Popen([python_exe, './liif/demo.py',
+        process = subprocess.Popen([PYTHON_EXE, './liif/demo.py',
             '--dir', in_path,
             '--model', model_path,
             '--resolution', "{},{}".format(h, w),
