@@ -7,6 +7,7 @@
 # In adition I added a superresolution upscaling step to the approach, which uses
 # code from the following paper https://github.com/yinboc/liif.
 
+from email.mime import base
 import os
 import shutil
 import subprocess
@@ -18,9 +19,9 @@ import bpy
 from bpy.types import Operator
 from bpy_extras.io_utils import ImportHelper
 
-PYTHON_EXE = './venv/Scripts/python.exe'
-
 base_script_path = Path(__file__).parent.resolve()
+
+PYTHON_EXE = os.path.join(str(base_script_path), 'venv\\Scripts\\python.exe')
 
 def check_remove_img(name):
     if name in bpy.data.images:
@@ -188,6 +189,9 @@ class MAT_OT_MATGAN_InputFromFlashImage(Operator):
         base_dir = bpy.context.scene.matgan_properties.directory
         in_dir  = base_dir
         out_dir = os.path.join(base_dir, 'input')
+
+        print(PYTHON_EXE)
+        print(base_script_path)
 
         process = subprocess.Popen([PYTHON_EXE, '-u', './materialGAN/tools/generate_inputs.py',
                     '--in_dir', in_dir,

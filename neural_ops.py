@@ -15,8 +15,9 @@ import bpy
 from bpy.types import Operator
 from bpy_extras.io_utils import ImportHelper
 
-PYTHON_EXE = './venv/Scripts/python.exe'
 base_script_path = Path(__file__).parent.resolve()
+
+PYTHON_EXE = os.path.join(str(base_script_path), 'venv\\Scripts\\python.exe')
 
 def check_remove_img(name):
     if name in bpy.data.images:
