@@ -26,6 +26,7 @@ def enqueue_output(out, queue):
 
 @persistent
 def on_addon_load(dummy):
+    print('NANI')
     MAT_OT_MATGAN_GetInterpolations._popen = None
     MAT_OT_MATGAN_Generator._popen = None
     MAT_OT_MATGAN_InputFromFlashImage._popen = None
@@ -34,6 +35,14 @@ def on_addon_load(dummy):
     bpy.context.scene.matgan_properties.directory = bpy.path.abspath("//") + 'matgan_demos\\'
     bpy.context.scene.neural_properties.directory = bpy.path.abspath("//") + 'neural_demos\\'
     bpy.context.scene.mixmat_properties.directory = bpy.path.abspath("//") + 'mixmat_demos\\'
+
+    blender_path = os.path.join(Path(__file__).parent.resolve(), 'final.blend')
+    with bpy.data.libraries.load(blender_path) as (data_from, data_to):
+        data_to.materials = data_from.materials
+
+        for mat in data.to.materials:
+            if mat is not None:
+                print(mat)
 
     if not os.path.exists(cache_path):
         os.makedirs(cache_path)
@@ -63,7 +72,8 @@ def copy_to_cache(src_path):
     
 
 def register():
-    bpy.app.handlers.load_post.append(on_addon_load)
+    if on_addon_load not in bpy.app.handlers.load_post:
+        bpy.app.handlers.load_post.append(on_addon_load)
 
     bpy.types.Scene.SelectWorkflow = bpy.props.EnumProperty(
         name = 'Material System Select',
@@ -82,7 +92,8 @@ def register():
     )
 
 def unregister():
-    bpy.app.handlers.load_post.remove(on_addon_load)
+    if on_addon_load in bpy.app.handlers.load_post:
+        bpy.app.handlers.load_post.remove(on_addon_load)
 
 
 class MAT_PT_GeneratorPanel(Panel):
