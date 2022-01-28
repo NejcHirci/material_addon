@@ -54,13 +54,14 @@ def on_addon_load(dummy):
                 shutil.rmtree(os.path.join(root, d))
 
 def update_active_mat(self, context):
-    ob = bpy.data.objects['Material Preview Plane']
-    if context.scene.SelectWorkflow == 'MatGAN':
-        ob.data.materials[0] = bpy.data.materials["matgan_mat"]
-    elif context.scene.SelectWorkflow == 'NeuralMAT':
-        ob.data.materials[0] = bpy.data.materials["neural_mat"]
-    elif context.scene.SelectWorkflow == 'MixMAT':
-        ob.data.materials[0] = bpy.data.materials['mix_mat']
+    active_object = bpy.context.scene.objects.active
+    if active_object:
+        if context.scene.SelectWorkflow == 'MatGAN':
+            ob.data.materials[0] = bpy.data.materials["matgan_mat"]
+        elif context.scene.SelectWorkflow == 'NeuralMAT':
+            ob.data.materials[0] = bpy.data.materials["neural_mat"]
+        elif context.scene.SelectWorkflow == 'MixMAT':
+            ob.data.materials[0] = bpy.data.materials['mix_mat']
 
 # Copy files to .cache folder
 def copy_to_cache(src_path):
