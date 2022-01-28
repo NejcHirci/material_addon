@@ -33,19 +33,6 @@ bl_info = {
     "category": "Material"
 }
 
-packages = [
-    ("torch", "-f https://download.pytorch.org/whl/cu113/torch_stable.html torch==1.10.1+cu113 torchvision==0.11.2+cu113 torchaudio===0.10.1+cu113"),
-    ("cv2", "opencv-contrib-python"),
-    ("matplotlib", "matplotlib"),
-    ("skimage", "scikit-image"),
-    ("IPython", "ipython"),
-    ("tqdm", "tqdm"),
-    ("kornia", "--only-binary=numpy kornia"),
-    ("yaml", "PyYaml"),
-    ("hydra", "hydra-core"),
-    ("tensorboard", "tensorboard")
-]
-
 class DemoUpdaterPanel(bpy.types.Panel):
     """Panel to demo popup notice and ignoring functionality"""
     bl_label = "Updater Demo Panel"

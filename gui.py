@@ -26,7 +26,6 @@ def enqueue_output(out, queue):
 
 @persistent
 def on_addon_load(dummy):
-    print('NANI')
     MAT_OT_MATGAN_GetInterpolations._popen = None
     MAT_OT_MATGAN_Generator._popen = None
     MAT_OT_MATGAN_InputFromFlashImage._popen = None
@@ -40,7 +39,7 @@ def on_addon_load(dummy):
     with bpy.data.libraries.load(blender_path) as (data_from, data_to):
         data_to.materials = data_from.materials
 
-        for mat in data.to.materials:
+        for mat in data_to.materials:
             if mat is not None:
                 print(mat)
 
