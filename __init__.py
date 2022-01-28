@@ -12,6 +12,8 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 from struct import pack
+
+from cv2 import add
 import bpy
 import sys
 import os
@@ -174,6 +176,8 @@ classes = (
 
 def register():
     addon_updater_ops.register(bl_info)
+    addon_updater_ops.make_annotations(DemoPreferences)
+    addon_updater_ops.make_annotations(DemoUpdaterPanel)
 
     for cls in classes:
         bpy.utils.register_class(cls)
@@ -186,5 +190,6 @@ def unregister():
 
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
+        
     gui.unregister()
     props.unregister()
