@@ -36,12 +36,9 @@ def on_addon_load(dummy):
     bpy.context.scene.mixmat_properties.directory = bpy.path.abspath("//") + 'mixmat_demos\\'
 
     blender_path = os.path.join(Path(__file__).parent.resolve(), 'final.blend')
-    with bpy.data.libraries.load(blender_path) as (data_from, data_to):
-        data_to.materials = data_from.materials
-
-        for mat in data_to.materials:
-            if mat is not None:
-                print(mat)
+    with bpy.data.libraries.load(blender_path, link=False) as (data_from, data_to):
+        new_mat = [mat for mat in data_from.materials if mat not in data_to.materials]
+        data_to.materials.append(new_mat)
 
     if not os.path.exists(cache_path):
         os.makedirs(cache_path)
