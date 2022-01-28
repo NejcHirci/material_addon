@@ -1357,12 +1357,12 @@ def register(bl_info):
 
     # Choose your own repository, must match git name for GitHUb and Bitbucket,
     # for GitLab use project ID (numbers only).
-    updater.repo = "material-addon"
+    updater.repo = "material_addon"
 
     # updater.addon = # define at top of module, MUST be done first
 
     # Website for manual addon download, optional but recommended to set.
-    updater.website = "https://github.com/NejcHirci/material-addon"
+    updater.website = "https://github.com/NejcHirci/material_addon"
 
     # Addon subfolder path.
     # "sample/path/to/addon"
