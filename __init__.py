@@ -11,12 +11,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-from struct import pack
 
-from cv2 import add
 import bpy
-import sys
-import os
 
 from . import addon_updater_ops
 from . import gui
@@ -190,6 +186,6 @@ def unregister():
 
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
-        
+
     gui.unregister()
     props.unregister()
