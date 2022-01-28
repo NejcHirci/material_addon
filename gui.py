@@ -37,8 +37,7 @@ def on_addon_load(dummy):
 
     blender_path = os.path.join(Path(__file__).parent.resolve(), 'final.blend')
     with bpy.data.libraries.load(blender_path, link=False) as (data_from, data_to):
-        new_mat = [mat for mat in data_from.materials if mat not in data_to.materials]
-        data_to.materials.append(new_mat)
+        data_to.materials = [mat for mat in data_from.materials if mat not in data_to.materials]
 
     if not os.path.exists(cache_path):
         os.makedirs(cache_path)
