@@ -54,7 +54,10 @@ def fix_missing(mat):
         if n.type == 'TEX_IMAGE':
             img = n.image
             if img is not None and not img.has_data:
-                img = bpy.data.images.load(os.path.join(Path(__file__).parent.resolve(), 'blank.jpg'))
+                if 'blank.jpg' in bpy.data.images:
+                    img = bpy.data.images['blank.jpg']
+                else:
+                    img = bpy.data.images.load(os.path.join(Path(__file__).parent.resolve(), 'blank.jpg'))
                 n.image = img
 
 def update_active_mat(self, context):
