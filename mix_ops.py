@@ -26,13 +26,13 @@ def update_mix(base_path):
     if active_obj:
         base_name = active_obj.name
         if base_name not in bpy.data.materials:
-            mat = bpy.data.materials["matgan_mat"].copy()
+            mat = bpy.data.materials["mix_mat"].copy()
             mat.name = base_name
         else:
             mat = bpy.data.materials[base_name]
     else:
         base_name = "base"
-        mat = bpy.data.materials["matgan_mat"]
+        mat = bpy.data.materials["mix_mat"]
         
     nodes = mat.node_tree.nodes
 
