@@ -27,7 +27,7 @@ def check_remove_img(name):
 # Function for updating textures during material generation.
 def update_neural(base_path):
     # Update textures if they already exist
-    active_obj = bpy.context.scene.objects.active
+    active_obj = bpy.context.view_layer.objects.active
 
     if active_obj:
         base_name = active_obj.name

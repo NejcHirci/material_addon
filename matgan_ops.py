@@ -39,7 +39,7 @@ def replace_file(src_path, dst_path, retries=10, sleep=0.1):
     
 # Function for updating textures during material generation.
 def update_matgan(base_path):
-    active_obj = bpy.context.scene.objects.active
+    active_obj = bpy.context.view_layer.objects.active
 
     if active_obj:
         base_name = active_obj.name

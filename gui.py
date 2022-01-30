@@ -5,6 +5,7 @@ from bpy.app.handlers import persistent
 import os
 import threading
 from queue import Queue
+from pathlib import Path
 
 from . mix_ops import *
 from . matgan_ops import *
@@ -48,9 +49,17 @@ def on_addon_load(dummy):
             for d in dirs:
                 shutil.rmtree(os.path.join(root, d))
 
+def fix_missing(mat):
+    for n in mat.node_tree.nodes:
+        if n.type == 'TEX_IMAGE':
+            img = n.image
+            if not img.has_data:
+                img = bpy.data.images.load(os.path.join(Path(__file__).parent.resolve(), 'blank.jpg'))
+                n.image = img
+
 def update_active_mat(self, context):
-    active_object = bpy.context.scene.objects.active
-    if active_object:
+    active_obj = bpy.context.view_layer.objects.active
+    if active_obj:
         if context.scene.SelectWorkflow == 'MatGAN':
             base_name = "matgan_mat"
         elif context.scene.SelectWorkflow == 'NeuralMAT':
@@ -58,14 +67,15 @@ def update_active_mat(self, context):
         elif context.scene.SelectWorkflow == 'MixMAT':
             base_name = "mix_mat"
 
-        name = f"{active_object.name}_{base_name}"
+        name = f"{active_obj.name}_{base_name}"
 
         if name not in bpy.data.materials:
             mat = bpy.data.materials[base_name].copy()
             mat.name = name
         else:
             mat = bpy.data.materials[name]
-        active_object.active_material = mat
+        active_obj.active_material = mat
+        fix_missing(mat)
 
 # Copy files to .cache folder
 def copy_to_cache(src_path):
