@@ -52,11 +52,20 @@ def update_active_mat(self, context):
     active_object = bpy.context.scene.objects.active
     if active_object:
         if context.scene.SelectWorkflow == 'MatGAN':
-            ob.data.materials[0] = bpy.data.materials["matgan_mat"]
+            base_name = "matgan_mat"
         elif context.scene.SelectWorkflow == 'NeuralMAT':
-            ob.data.materials[0] = bpy.data.materials["neural_mat"]
+            base_name = "neural_mat"
         elif context.scene.SelectWorkflow == 'MixMAT':
-            ob.data.materials[0] = bpy.data.materials['mix_mat']
+            base_name = "mix_mat"
+
+        name = f"{active_object.name}_{base_name}"
+
+        if name not in bpy.data.materials:
+            mat = bpy.data.materials[base_name].copy()
+            mat.name = name
+        else:
+            mat = bpy.data.materials[name]
+        active_object.active_material = mat
 
 # Copy files to .cache folder
 def copy_to_cache(src_path):
@@ -65,16 +74,15 @@ def copy_to_cache(src_path):
             f = os.fsdecode(file)
             if f.endswith(".png") or f.endswith(".pt") or f.endswith('.ckpt'): 
                 shutil.copyfile(os.path.join(src_path, f), os.path.join(cache_path, f))
-    
 
 def register():
     if on_addon_load not in bpy.app.handlers.load_post:
         bpy.app.handlers.load_post.append(on_addon_load)
 
     bpy.types.Scene.SelectWorkflow = bpy.props.EnumProperty(
-        name = 'Material System Select',
-        description = 'Selected Material System for editing and generation.',
-        items = { 
+        name='Material System Select',
+        description='Selected Material System for editing and generation.',
+        items={
             ('MatGAN', 'MaterialGAN + LIIF', 'Using MaterialGAN for generation and LIIF model for upscaling. ' \
                 + 'Editing implemented as vector space exploration.'), 
             ('NeuralMAT', 'Neural Material', 'Using Neural Material model for generatiog. ' \

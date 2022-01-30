@@ -21,7 +21,19 @@ def check_remove_img(name):
 # Function for updating textures during material generation.
 def update_mix(base_path):
     # Update textures if they already exist
-    mat = bpy.data.materials["mix_mat"]
+    active_obj = bpy.context.scene.objects.active
+
+    if active_obj:
+        base_name = active_obj.name
+        if base_name not in bpy.data.materials:
+            mat = bpy.data.materials["matgan_mat"].copy()
+            mat.name = base_name
+        else:
+            mat = bpy.data.materials[base_name]
+    else:
+        base_name = "base"
+        mat = bpy.data.materials["matgan_mat"]
+        
     nodes = mat.node_tree.nodes
 
     albedo = nodes.get("Image Texture")
@@ -33,33 +45,33 @@ def update_mix(base_path):
     emission = nodes.get("Image Texture.007")
 
     if os.path.isfile(os.path.join(base_path, 'Albedo0000.png')):
-        check_remove_img('mixmat-albedo.png')
+        check_remove_img(f'{base_name}-mixmat-albedo.png')
         img = bpy.data.images.load(os.path.join(base_path, 'Albedo0000.png'))
-        img.name = 'mixmat-albedo.png'
+        img.name = f'{base_name}-mixmat-albedo.png'
         albedo.image = img
-        check_remove_img('mixmat-metallic.png')
+        check_remove_img(f'{base_name}-mixmat-metallic.png')
         img = bpy.data.images.load(os.path.join(base_path, 'Metallic0000.png'))
-        img.name = 'mixmat-metallic.png'
+        img.name = f'{base_name}-mixmat-metallic.png'
         metallic.image = img    
-        check_remove_img('mixmat-rough.png')
+        check_remove_img(f'{base_name}-mixmat-rough.png')
         img = bpy.data.images.load(os.path.join(base_path, 'Roughness0000.png'))
-        img.name = 'mixmat-rough.png'
+        img.name = f'{base_name}-mixmat-rough.png'
         roughness.image = img
-        check_remove_img('mixmat-normal.png')
+        check_remove_img(f'{base_name}-mixmat-normal.png')
         img = bpy.data.images.load(os.path.join(base_path, 'Normal0000.png'))
-        img.name = 'mixmat-normal.png'
+        img.name = f'{base_name}-mixmat-normal.png'
         normal.image = img
-        check_remove_img('mixmat-ao.png')
+        check_remove_img(f'{base_name}-mixmat-ao.png')
         img = bpy.data.images.load(os.path.join(base_path, 'AO0000.png'))
-        img.name = 'mixmat-ao.png'
+        img.name = f'{base_name}-mixmat-ao.png'
         ambient_occlusion.image = img
-        check_remove_img('mixmat-cavity.png')
+        check_remove_img(f'{base_name}-mixmat-cavity.png')
         img = bpy.data.images.load(os.path.join(base_path, 'Cavity0000.png'))
-        img.name = 'mixmat-cavity.png'
+        img.name = f'{base_name}-mixmat-cavity.png'
         cavity.image = img
-        check_remove_img('mixmat-emission.png')
+        check_remove_img(f'{base_name}-mixmat-emission.png')
         img = bpy.data.images.load(os.path.join(base_path, 'Emission0000.png'))
-        img.name = 'mixmat-emission.png'
+        img.name = f'{base_name}-mixmat-emission.png'
         emission.image = img
 
 class MAT_OT_MIX_Generator(Operator):

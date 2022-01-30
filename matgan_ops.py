@@ -39,8 +39,19 @@ def replace_file(src_path, dst_path, retries=10, sleep=0.1):
     
 # Function for updating textures during material generation.
 def update_matgan(base_path):
-    # Update textures if they already exist
-    mat = bpy.data.materials["matgan_mat"]
+    active_obj = bpy.context.scene.objects.active
+
+    if active_obj:
+        base_name = active_obj.name
+        if base_name not in bpy.data.materials:
+            mat = bpy.data.materials["matgan_mat"].copy()
+            mat.name = base_name
+        else:
+            mat = bpy.data.materials[base_name]
+    else:
+        base_name = "base"
+        mat = bpy.data.materials["matgan_mat"]
+    
     nodes = mat.node_tree.nodes
 
     albedo = nodes.get("Image Texture")
@@ -49,24 +60,24 @@ def update_matgan(base_path):
     normal = nodes.get("Image Texture.003")
 
     if os.path.isfile(os.path.join(base_path, 'albedo.png')):
-        check_remove_img('matgan-render.png')
+        check_remove_img(f'{base_name}-matgan-render.png')
         img = bpy.data.images.load(os.path.join(base_path, 'render.png'))
-        img.name = 'matgan-render.png'
-        check_remove_img('matgan-albedo.png')
+        img.name = f'{base_name}-matgan-render.png'
+        check_remove_img(f'{base_name}-matgan-albedo.png')
         img = bpy.data.images.load(os.path.join(base_path, 'albedo.png'))
-        img.name = 'matgan-albedo.png'
+        img.name = f'{base_name}-matgan-albedo.png'
         albedo.image = img
-        check_remove_img('matgan-specular.png')
+        check_remove_img(f'{base_name}-matgan-specular.png')
         img = bpy.data.images.load(os.path.join(base_path, 'specular.png'))
-        img.name = 'matgan-specular.png'
-        specular.image = img    
-        check_remove_img('matgan-rough.png')
+        img.name = f'{base_name}-matgan-specular.png'
+        specular.image = img
+        check_remove_img(f'{base_name}-matgan-rough.png')
         img = bpy.data.images.load(os.path.join(base_path, 'rough.png'))
-        img.name = 'matgan-rough.png'
+        img.name = f'{base_name}-matgan-rough.png'
         rough.image = img
-        check_remove_img('matgan-normal.png')
+        check_remove_img(f'{base_name}-matgan-normal.png')
         img = bpy.data.images.load(os.path.join(base_path, 'normal.png'))
-        img.name = 'matgan-normal.png'
+        img.name = f'{base_name}-matgan-normal.png'
         normal.image = img
 
 class MAT_OT_MATGAN_Generator(Operator):

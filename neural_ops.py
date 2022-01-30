@@ -27,7 +27,19 @@ def check_remove_img(name):
 # Function for updating textures during material generation.
 def update_neural(base_path):
     # Update textures if they already exist
-    mat = bpy.data.materials["neural_mat"]
+    active_obj = bpy.context.scene.objects.active
+
+    if active_obj:
+        base_name = active_obj.name
+        if base_name not in bpy.data.materials:
+            mat = bpy.data.materials["matgan_mat"].copy()
+            mat.name = base_name
+        else:
+            mat = bpy.data.materials[base_name]
+    else:
+        base_name = "base"
+        mat = bpy.data.materials["matgan_mat"]
+        
     nodes = mat.node_tree.nodes
 
     albedo = nodes.get("Image Texture")
@@ -36,24 +48,24 @@ def update_neural(base_path):
     normal = nodes.get("Image Texture.003")
 
     if os.path.isfile(os.path.join(base_path, 'albedo.png')):
-        check_remove_img('neural-render.png')
+        check_remove_img(f'{base_name}-neural-render.png')
         img = bpy.data.images.load(os.path.join(base_path, 'render.png'))
-        img.name = 'neural-render.png'
-        check_remove_img('neural-albedo.png')
+        img.name = f'{base_name}-neural-render.png'
+        check_remove_img(f'{base_name}-neural-albedo.png')
         img = bpy.data.images.load(os.path.join(base_path, 'albedo.png'))
-        img.name = 'neural-albedo.png'
+        img.name = f'{base_name}-neural-albedo.png'
         albedo.image = img
-        check_remove_img('neural-specular.png')
+        check_remove_img(f'{base_name}-neural-specular.png')
         img = bpy.data.images.load(os.path.join(base_path, 'specular.png'))
-        img.name = 'neural-specular.png'
-        specular.image = img    
-        check_remove_img('neural-rough.png')
+        img.name = f'{base_name}-neural-specular.png'
+        specular.image = img
+        check_remove_img(f'{base_name}-neural-rough.png')
         img = bpy.data.images.load(os.path.join(base_path, 'rough.png'))
-        img.name = 'neural-rough.png'
+        img.name = f'{base_name}-neural-rough.png'
         rough.image = img
-        check_remove_img('neural-normal.png')
+        check_remove_img(f'{base_name}-neural-normal.png')
         img = bpy.data.images.load(os.path.join(base_path, 'normal.png'))
-        img.name = 'neural-normal.png'
+        img.name = f'{base_name}-neural-normal.png'
         normal.image = img
 
 def replace_file(src_path, dst_path, retries=10, sleep=0.1):
