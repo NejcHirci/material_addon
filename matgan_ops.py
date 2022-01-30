@@ -42,7 +42,7 @@ def update_matgan(base_path):
     active_obj = bpy.context.view_layer.objects.active
 
     if active_obj:
-        base_name = active_obj.name
+        base_name = f"{active_obj.name}_neural_mat"
         if base_name not in bpy.data.materials:
             mat = bpy.data.materials["matgan_mat"].copy()
             mat.name = base_name

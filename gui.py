@@ -53,7 +53,7 @@ def fix_missing(mat):
     for n in mat.node_tree.nodes:
         if n.type == 'TEX_IMAGE':
             img = n.image
-            if not img.has_data:
+            if img is not None and not img.has_data:
                 img = bpy.data.images.load(os.path.join(Path(__file__).parent.resolve(), 'blank.jpg'))
                 n.image = img
 
