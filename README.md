@@ -3,10 +3,11 @@
 Source repository for the development of Blender addon for the 
 user study of different material systems.
 
-## Installation (from source)
 
-1. Download material_addon and install as zip in Blender.
-2. Afterwards you must create python envrionment in folder venv of material_addon from requirements.txt
+## Installation
+
+1. Download latest release material_addon.zip and install as zip in Blender.
+2. Afterwards you must create python envrionment in addon installation directory under `venv` folder from requirements.txt
 3. Install appropriate version of PyTorch for your system to the created environment.
 
 ## Demo usage
