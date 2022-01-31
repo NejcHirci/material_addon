@@ -1,3 +1,4 @@
+from tokenize import group
 import bpy
 import glob
 from bpy.types import Panel, Operator
@@ -39,8 +40,10 @@ def on_addon_load(dummy):
     blender_path = os.path.join(Path(__file__).parent.resolve(), 'final.blend')
     with bpy.data.libraries.load(blender_path, link=False) as (data_from, data_to):
         data_to.materials = [mat for mat in data_from.materials if mat not in data_to.materials]
-        if 'photo_to_pbr' not in bpy.data.node_groups:
-            data_to.node_groups = [n for n in data_from.node_groups if n == 'photo_to_pbr']
+
+        group_list = ['photo_to_pbr', 'Wood', 'Plastic', 'Plaster', 'Leather', 'Silk', 'Concrete', 'Marble']
+
+        data_to.node_groups = [n for n in data_from.node_groups if n in group_list]
 
     if not os.path.exists(cache_path):
         os.makedirs(cache_path)
