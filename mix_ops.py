@@ -111,7 +111,14 @@ class MAT_OT_MIX_Generator(Operator):
         main_output = photo_to_pbr.node_tree.nodes['File Output.001']
         main_output.base_path = str(out_dir)
 
+        # Because of naming we must reset current frame.
+        bpy.context.scene.frame_set(0)
+
         mixmat.progress = "Generating textures from albedo ..."
+
+        for area in context.screen.areas:
+            if area.type in ['NODE_EDITOR']:
+                area.tag_redraw()
 
         bpy.context.window.cursor_set("WAIT")
 
@@ -122,6 +129,7 @@ class MAT_OT_MIX_Generator(Operator):
 
         out_dir = Path(mixmat.directory, 'out')
         bpy.context.scene.use_nodes = False
+
         update_mix(str(out_dir))
         mixmat.progress = "Textures generated."
         mixmat.progress += f" Elapsed time: {time.time()-sTime:.3f}"
