@@ -1,13 +1,37 @@
 import bpy
 
 def update_mixmat_interpolate(self, context):
-    mat = bpy.data.materials["mix_mat"]
+    active_obj = bpy.context.view_layer.objects.active
+
+    if active_obj:
+        base_name = f"{active_obj.name}_mix_mat"
+        if base_name not in bpy.data.materials:
+            mat = bpy.data.materials["mix_mat"].copy()
+            mat.name = base_name
+        else:
+            mat = bpy.data.materials[base_name]
+    else:
+        base_name = "base"
+        mat = bpy.data.materials["mix_mat"]
+        
     nodes = mat.node_tree.nodes
     mix_shader = nodes.get("Mix Shader")
     mix_shader.inputs[0].default_value = context.scene.mixmat_properties.value
 
 def update_mixmat_direction(self, context):
-    mat = bpy.data.materials["mix_mat"]
+    active_obj = bpy.context.view_layer.objects.active
+
+    if active_obj:
+        base_name = f"{active_obj.name}_mix_mat"
+        if base_name not in bpy.data.materials:
+            mat = bpy.data.materials["mix_mat"].copy()
+            mat.name = base_name
+        else:
+            mat = bpy.data.materials[base_name]
+    else:
+        base_name = "base"
+        mat = bpy.data.materials["mix_mat"]
+    
     nodes = mat.node_tree.nodes
     links = mat.node_tree.links
     mix_shader = nodes.get("Mix Shader")
