@@ -41,7 +41,7 @@ def on_addon_load(dummy):
     with bpy.data.libraries.load(blender_path, link=False) as (data_from, data_to):
         data_to.materials = [mat for mat in data_from.materials if mat not in data_to.materials]
 
-        group_list = ['photo_to_pbr', 'Wood', 'Plastic', 'Plaster', 'Leather', 'Silk', 'Concrete', 'Marble']
+        group_list = ['photo_to_pbr', 'Aluminium', 'Wood', 'Plastic', 'Plaster', 'Leather', 'Silk', 'Concrete', 'Marble']
 
         data_to.node_groups = [n for n in data_from.node_groups if n in group_list]
 
