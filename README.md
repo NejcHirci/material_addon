@@ -3,7 +3,6 @@
 Source repository for the development of Blender addon for the 
 user study of different material systems.
 
-
 ## Installation
 
 1. Download latest release material_addon.zip and install as zip in Blender.
@@ -12,13 +11,18 @@ user study of different material systems.
 
 ## Demo usage
 
-1. Extract Blender from demo zip folder and run it.
-2. Open demo blender file `final.blender` from the extracted folder.
-3. In Blender go to `MaterialGenerator` view. You can see the implemented addon as an extra tab in the `ShaderNode` view.
+NeuralMaterial and Algorithmic approach support a photo of any resolution of format .png.
+For MaterialGAN approach you must print the apriltags preprepared [IMAGE](docs/tag36h11_print.png) and take flash photos of material
+inside the cut region.
+
+When taking more photos of the material be sure to keep the target material as centered as possible and try to vary between different 
+angles, otherwise you may experience a overblown generated material from NeuralMaterial and MaterialGAN approaches.
+
+1. In Blender go to `MaterialGenerator` view. You can see the implemented addon as an extra tab in the `ShaderNode` view.
 
 ![MaterialGenerator view](docs/step_3.jpg)
 
-4. You can choose between different material generation and editing approaches in the top enum of addon user interface:
+2. You can choose between different material generation and editing approaches in the top enum of addon user interface:
 
 ![Choose an approach](docs/step_4.jpg)
 
