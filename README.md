@@ -6,7 +6,7 @@ user study of different material systems.
 ## Installation
 
 1. Download latest release material_addon.zip and install as zip in Blender.
-2. You will need to create a python environment in the installed addon folder, which can be found in Blender Preferences > Add-ons (copy without __init__.py):
+2. You will need to create a python environment in the installed addon folder, which can be found in Blender Preferences > Add-ons (copy without __init__.py). Portable Blender doesn't come with python so you will have to install Python 3.9 separately and use it to create a virtual environment in a similar fashion:
 ![Add-on install folder](docs/install_path.png)
     1. Next open CMD and use `cd "<YOUR_PATH>\Blender Foundation\Blender 3.0\3.0\python\bin"` to enter the python installation Blender directory.
     2. Now we will create a virtual environment by running with the add-on installation path copied from earlier `./python.exe -m venv "<ADD_ON_PATH>"`.
