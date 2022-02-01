@@ -6,8 +6,17 @@ user study of different material systems.
 ## Installation
 
 1. Download latest release material_addon.zip and install as zip in Blender.
-2. Afterwards you must create python envrionment in addon installation directory under `venv` folder from requirements.txt
-3. Install appropriate version of PyTorch for your system to the created environment.
+2. You will need to create a python environment in the installed addon folder, which can be found in Blender Preferences > Add-ons (copy without __init__.py):
+![Add-on install folder](docs/install_path.png)
+    1. Next open CMD and use `cd "<YOUR_PATH>\Blender Foundation\Blender 3.0\3.0\python\bin"` to enter the python installation Blender directory.
+    2. Now we will create a virtual environment by running with the add-on installation path copied from earlier `./python.exe -m venv "<ADD_ON_PATH>"`.
+    3. Next we will go to the material_addon installation directory wiht `cd "<ADD_ON_PATH>"` and run `./venv/Scripts/activate` to activate the environment.
+4. Install appropriate version of PyTorch for your system to the created environment.
+    1. To install PyTorch on a CUDA supported gpu (see https://developer.nvidia.com/cuda-gpus for support) you must download CUDA toolkit from [here](https://developer.nvidia.com/cuda-toolkit). This will install v11 CUDA drivers on your system.
+    2. Next we will install PyTorch by running `pip install torch==1.10.2+cu113 torchvision==0.11.3+cu113 torchaudio===0.10.2+cu113 -f https://download.pytorch.org/whl/cu113/torch_stable.html
+` in the previously opened CMD. 
+5. Install the required packages from (requirements.txt)[requirements.txt] by running `pip install -r requirements.txt`
+6. Installation is now complete and should enable you to use all 3 implemented material approaches.
 
 ## Demo usage
 
