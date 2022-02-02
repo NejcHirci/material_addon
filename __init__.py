@@ -26,7 +26,7 @@ bl_info = {
     "author": "Nejc Hirci",
     "description": "Provides 3 approaches to material generation from photos.",
     "blender": (2, 80, 0),
-    "version": (0, 1, 0),
+    "version": (0, 2, 0),
     "location": "ShaderEditor > Util > MaterialGenerator Util",
     "doc_url": "https://github.com/NejcHirci/material-addon",
     "warning": "",
