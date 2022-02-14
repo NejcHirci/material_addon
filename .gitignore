@@ -8,6 +8,8 @@ assets/
 __pycache__/
 materialGAN/data/
 neuralmaterial/trainings/
+neuralmaterial/data/
+
 # Cache folder for addon
 .cache
 
