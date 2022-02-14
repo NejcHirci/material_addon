@@ -79,7 +79,7 @@ class SingletonUpdater:
         self._backup_ignore_patterns = ["venv", "neuralmaterial/data", "neuralmaterial/trainings", "materialGAN/data"]
 
         # Set patterns the files to overwrite during an update.
-        self._overwrite_patterns = ["*.py", "*.pyc"]
+        self._overwrite_patterns = ["*.py", "*.pyc", "*.blend", ".blend1"]
         self._remove_pre_update_patterns = list()
 
         # By default, don't auto disable+re-enable the addon after an update,
