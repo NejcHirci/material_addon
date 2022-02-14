@@ -76,7 +76,7 @@ class SingletonUpdater:
 
         # By default, backup current addon on update/target install.
         self._backup_current = True
-        self._backup_ignore_patterns = None
+        self._backup_ignore_patterns = ["venv"]
 
         # Set patterns the files to overwrite during an update.
         self._overwrite_patterns = ["*.py", "*.pyc"]
