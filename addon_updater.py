@@ -75,7 +75,7 @@ class SingletonUpdater:
         self._version_max_update = None
 
         # By default, backup current addon on update/target install.
-        self._backup_current = True
+        self._backup_current = False
         self._backup_ignore_patterns = ["venv", "neuralmaterial/data", "neuralmaterial/trainings", "materialGAN/data"]
 
         # Set patterns the files to overwrite during an update.
