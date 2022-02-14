@@ -39,7 +39,7 @@ def on_addon_load(dummy):
 
     blender_path = os.path.join(Path(__file__).parent.resolve(), 'final.blend')
     with bpy.data.libraries.load(blender_path, link=False) as (data_from, data_to):
-        data_to.materials = [mat for mat in data_from.materials if mat not in data_to.materials]
+        data_to.materials = [mat for mat in data_from.materials]
 
         group_list = ['photo_to_pbr', 'Aluminium', 'Wood', 'Plastic', 'Plaster', 'Leather', 'Silk', 'Concrete', 'Marble']
 
