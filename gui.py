@@ -59,10 +59,8 @@ def fix_missing(mat):
         if n.type == 'TEX_IMAGE':
             img = n.image
             if img is not None and not img.has_data:
-                if 'blank.jpg' in bpy.data.images:
-                    img = bpy.data.images['blank.jpg']
-                else:
-                    img = bpy.data.images.load(os.path.join(Path(__file__).parent.resolve(), 'blank.jpg'))
+                img = bpy.data.images.load(os.path.join(Path(__file__).parent.resolve(), 'blank.jpg'))
+                img.name = 'blank.jpg'
                 n.image = img
 
 def update_active_mat(self, context):
@@ -80,10 +78,11 @@ def update_active_mat(self, context):
         if name not in bpy.data.materials:
             mat = bpy.data.materials[base_name].copy()
             mat.name = name
+            fix_missing(mat)
         else:
             mat = bpy.data.materials[name]
+        
         active_obj.active_material = mat
-        fix_missing(mat)
 
 # Copy files to .cache folder
 def copy_to_cache(src_path):
@@ -116,6 +115,8 @@ def register():
 def unregister():
     if on_addon_load in bpy.app.handlers.load_post:
         bpy.app.handlers.load_post.remove(on_addon_load)
+    
+    del bpy.types.Scene.SelectWorkflow
 
 
 class MAT_PT_GeneratorPanel(Panel):
