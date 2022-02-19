@@ -152,8 +152,8 @@ class MAT_OT_MIX_FileBrowser(Operator, ImportHelper):
         fdir = os.path.dirname(fdir)
         
         if os.path.isdir(os.path.join(fdir, 'out')):
-            bpy.context.scene.matgan_properties.progress = "Material found."
+            mixmat.progress = "Material found."
             update_mix(os.path.join(fdir, 'out'))        
         else:
-            bpy.context.scene.matgan_properties.progress = "Ready to generate."
+            mixmat.progress = "Ready to generate."
         return {'FINISHED'}

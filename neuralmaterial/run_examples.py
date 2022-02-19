@@ -20,7 +20,8 @@ root_dir = 'D:/materials/NeuralMaterial/'
 mat_list = gyListNames(root_dir + '*')
 model_path = './trainings/Neuralmaterial'
 
-for id, mat in enumerate(mat_list):
+print(mat_list)
+for id, mat in enumerate(mat_list[30:]):
     mat_dir = root_dir + mat
     out_dir = mat_dir + '/out/'
     print(id, mat)
