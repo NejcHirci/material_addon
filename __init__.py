@@ -13,6 +13,10 @@
 
 
 import bpy
+import os
+from pathlib import Path
+import subprocess
+import sys
 
 from . import addon_updater_ops
 from . import gui
@@ -32,6 +36,48 @@ bl_info = {
     "warning": "",
     "category": "Material"
 }
+
+class MAT_OT_install_dependencies(bpy.types.Operator):
+    bl_idname = 'mat.install_dependencies'
+    bl_label = 'Install dependencies'
+    bl_description = 'Downloads and installs the required python packages for this add-on.'
+    bl_options = {'REGISTER', 'INTERNAL'}
+
+    @classmethod
+    def poll(self, context):
+        # Deactivate if dependencies have been installed
+        return True
+
+    def execute(self, context):
+        # First we need to install virtualenv
+        try:
+            import virtualenv
+        except ImportError:
+            subprocess.call([sys.executable, "-m", "pip", "install", "virtualenv"])
+
+        import virtualenv
+        venv_dir = os.path.join(Path(__file__).parent.resolve(), 'venv\\')
+        virtualenv.create_environment(venv_dir)
+
+
+        py_bin = os.path.join(venv_dir, 'Scripts\\python.exe')
+
+        try:
+            cuda = subprocess.call(['nvcc', '--version'], stdout=subprocess.PIPE)
+            if b"V11" in cuda.stdout:
+                # CUDA version v11
+                subprocess.call([py_bin, "pip3", "install", "-f https://download.pytorch.org/whl/cu113/torch_stable.html torch==1.10.1+cu113 torchvision==0.11.2+cu113 torchaudio===0.10.1+cu113"])
+            elif b"V10" in cuda.stdout:
+                # CUDA version v10
+                subprocess.call([py_bin, "-m", "pip", "install",
+                "torch==1.10.1+cu102 torchvision==0.11.2+cu102 torchaudio===0.10.1+cu102 -f https://download.pytorch.org/whl/cu102/torch_stable.html"])
+        except:
+            # No CUDA support
+            subprocess.call([py_bin, "-m", "pip", "install", "torch", "torchvision", "torchaudio"])
+
+        subprocess.call([py_bin, "-m", "pip", "install", "-r", "./requirements.txt"])
+
+        return {'FINISHED'}
 
 class DemoUpdaterPanel(bpy.types.Panel):
     """Panel to demo popup notice and ignoring functionality"""

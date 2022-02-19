@@ -51,7 +51,7 @@ class NeuralMaterial(CoreModule):
 
         return brdf_maps
     
-    def forward(self, batch, mode, size=None):
+    def forward(self, batch, mode, size=None, light_shift=None):
 
         z, mu, logvar, rot = self.encode(batch, mode)
 
@@ -65,7 +65,7 @@ class NeuralMaterial(CoreModule):
         brdf_maps = self.decode(z, x)
 
         # render brdf maps using differentiable rendering
-        image_out = self.renderer(brdf_maps, rot_angle=rot, light_shift=None)
+        image_out = self.renderer(brdf_maps, rot_angle=rot, light_shift=light_shift)
 
         return image_out, brdf_maps, z, mu, logvar
 

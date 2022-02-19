@@ -150,7 +150,9 @@ def optim(args):
 
     light_pos, camera_pos, im_size, light = loadLightAndCamera(in_this_dir)
 
-    rendered_ref, textures_ref = loadTarget(in_this_dir, res, args.num_render_used)
+    rendered_ref, textures_ref = loadTarget(in_this_dir, res, 9)
+
+
 
     # initial textures
     if args.optim_latent:

@@ -177,7 +177,25 @@ def tex2pngs(tex, fn):
     normal.save(os.path.join(fn, 'normal.png'))
     rough.save(os.path.join(fn, 'rough.png'))
 
+def pngs2tex(fn):
+    albedo = Image.open(os.path.join(fn, 'albedo.png'))
+    albedo = gyPIL2Array(albedo)
+    
+    normal = Image.open(os.path.join(fn, 'normal.png'))
+    normal = gyPIL2Array(normal)
+    normal = normal[:,:,0:2]
+    
+    specular = Image.open(os.path.join(fn, 'specular.png'))
+    specular = gyPIL2Array(specular)
+    
+    rough = Image.open(os.path.join(fn, 'rough.png'))
+    rough = gyPIL2Array(rough)
 
+    res = albedo.shape[0]
+    tex = th.cat((th.from_numpy(albedo), th.from_numpy(normal), th.from_numpy(rough).unsqueeze(2), th.from_numpy(specular).unsqueeze(2)), 2)
+    tex = tex * 2 - 1
+    ret = tex.permute(2,0,1).unsqueeze(0).cuda() if th.cuda.is_available() else tex.permute(2,0,1).unsqueeze(0)
+    return ret, res
 
 def tex2png(tex, fn, isVertical=False):
     isSpecular = False

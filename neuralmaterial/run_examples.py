@@ -15,7 +15,7 @@ h_res = 1024
 w_res = 1024
 seed = 42
 
-root_dir = 'D:/neural/test/'
+root_dir = 'D:/materials/NeuralMaterial/'
 
 mat_list = gyListNames(root_dir + '*')
 model_path = './trainings/Neuralmaterial'
