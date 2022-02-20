@@ -16,7 +16,7 @@ def update_mixmat_interpolate(self, context):
         
     nodes = mat.node_tree.nodes
     mix_shader = nodes.get("Mix Shader")
-    mix_shader.inputs[0].default_value = context.scene.mixmat_properties.value
+    mix_shader.inputs[0].default_value = 1.0 - context.scene.mixmat_properties.value
 
 def update_mixmat_direction(self, context):
     active_obj = bpy.context.view_layer.objects.active
@@ -87,7 +87,7 @@ class MixMaterialProps(bpy.types.PropertyGroup):
             ('Marble', 'Marble', 'Downloaded from https://www.blenderkit.com/get-blenderkit/9cb2b199-f3fe-4cbc-b963-cf7d1332a87d/'),
         },
         default="Wood", update=update_mixmat_direction)
-    value: bpy.props.FloatProperty(name="Mix shader value", description="", default=0.50, min=0.0, max=1.0, update=update_mixmat_interpolate, options={'SKIP_SAVE'})
+    value: bpy.props.FloatProperty(name="Mix shader value", description="", default=0.0, min=0.0, max=1.0, update=update_mixmat_interpolate, options={'SKIP_SAVE'})
 
 def register():
     bpy.types.Scene.matgan_properties = bpy.props.PointerProperty(type=MaterialGANProps)
