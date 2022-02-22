@@ -131,7 +131,7 @@ class MAT_OT_MIX_Generator(Operator):
         bpy.context.scene.use_nodes = False
 
         update_mix(str(out_dir))
-        mixmat.progress = "Textures generated."
+        mixmat.progress = "Material generated."
         mixmat.progress += f" Elapsed time: {time.time()-sTime:.3f}"
 
         bpy.context.window.cursor_set("DEFAULT")

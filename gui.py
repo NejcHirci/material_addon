@@ -303,13 +303,14 @@ class MAT_PT_GeneratorPanel(Panel):
 
         row = layout.row()
         row.prop(mix, "material", text="Select")
-        row.prop(mix, "value", text="Mix level")
+
+        if 'Material' in mix.progress:
+            row.prop(mix, "value", text="Mix level")
         
 
-        if 'generated' in mix.progress:
-            layout.separator()
-            row = layout.row()
-            MAT_PT_GeneratorPanel.mix_preview = row.template_preview(bpy.data.materials[mix.material], show_buttons=False)
+        layout.separator()
+        row = layout.row()
+        row.template_preview(bpy.data.materials[mix.material], show_buttons=False)
 
     def draw(self, context):        
         self.layout.prop(context.scene, 'SelectWorkflow')
