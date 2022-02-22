@@ -66,9 +66,9 @@ class NeuralMaterialProps(bpy.types.PropertyGroup):
     progress: bpy.props.StringProperty(name="Progress value", description="", default="Not started.",
         options={'SKIP_SAVE'})
     h_res : bpy.props.IntProperty(name="Super resolution height", subtype="PIXEL", description="Height resolution for upscaling", \
-        default=1024, min=512, max=8096)
+        default=1024, min=512, max=3000)
     w_res : bpy.props.IntProperty(name="Super resolution width", subtype="PIXEL", description="Width resolution for upscaling", \
-        default=1024, min=512, max=8096)
+        default=1024, min=512, max=3000)
     seed : bpy.props.IntProperty(name="Seed", description="Seed used for material generation", default=42, min=0, max=100000)
 
 class MixMaterialProps(bpy.types.PropertyGroup):

@@ -33,10 +33,6 @@ def on_addon_load(dummy):
     MAT_OT_MATGAN_InputFromFlashImage._popen = None
     MAT_OT_MATGAN_SuperResolution._popen = None
 
-    bpy.context.scene.matgan_properties.directory = bpy.path.abspath("//") + 'matgan_demos\\'
-    bpy.context.scene.neural_properties.directory = bpy.path.abspath("//") + 'neural_demos\\'
-    bpy.context.scene.mixmat_properties.directory = bpy.path.abspath("//") + 'mixmat_demos\\'
-
     blender_path = os.path.join(Path(__file__).parent.resolve(), 'final.blend')
     with bpy.data.libraries.load(blender_path, link=False) as (data_from, data_to):
         data_to.materials = [mat for mat in data_from.materials]
