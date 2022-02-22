@@ -3,12 +3,14 @@
 venv/
 material_addon_updater/
 assets/
-
-# Python specific
-__pycache__/
 materialGAN/data/
 neuralmaterial/trainings/
 neuralmaterial/data/
+algorithmic/
+
+# Python specific
+__pycache__/
+
 
 # Cache folder for addon
 .cache

@@ -50,6 +50,13 @@ def on_addon_load(dummy):
             for d in dirs:
                 shutil.rmtree(os.path.join(root, d))
 
+    # Load mix images
+    names = ['Aluminium', 'Wood', 'Plastic', 'Plaster', 'Leather', 'Silk', 'Concrete', 'Marble']
+    for i in names:
+        img = bpy.data.images.load(os.path.join(Path(__file__).parent.resolve(), f'algorithmic/{i}.png'))
+        img.name = i
+        img.preview_ensure()
+
 def fix_missing(mat):
     for n in mat.node_tree.nodes:
         if n.type == 'TEX_IMAGE':
@@ -310,7 +317,8 @@ class MAT_PT_GeneratorPanel(Panel):
 
         layout.separator()
         row = layout.row()
-        row.template_preview(bpy.data.materials[mix.material], show_buttons=False)
+        img = bpy.data.images[mix.material]
+        row.template_icon(icon_value=img.preview.icon_id, scale=10)
 
     def draw(self, context):        
         self.layout.prop(context.scene, 'SelectWorkflow')
