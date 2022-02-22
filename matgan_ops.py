@@ -331,6 +331,11 @@ class MAT_OT_MATGAN_FileBrowser(Operator, ImportHelper):
     
     filename_ext = ""
 
+    def invoke(self, context, event):
+        self.filepath = bpy.context.scene.matgan_properties.directory
+        wm = context.window_manager.fileselect_add(self)
+        return {'RUNNING_MODAL'}
+
     def execute(self, context):
         fdir = self.properties.filepath
         bpy.context.scene.matgan_properties.directory = os.path.dirname(fdir)

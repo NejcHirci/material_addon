@@ -122,9 +122,12 @@ class MAT_OT_NEURAL_FileBrowser(Operator, ImportHelper):
     
     filename_ext = ""
 
+    def invoke(self, context, event):
+        self.filepath = bpy.context.scene.neural_properties.directory
+        wm = context.window_manager.fileselect_add(self)
+        return {'RUNNING_MODAL'}
+
     def execute(self, context):
-        print(self.properties)
-        print(self.properties.filepath)
         fdir = self.properties.filepath
         gan = bpy.context.scene.neural_properties
         gan.directory = os.path.dirname(fdir)

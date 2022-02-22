@@ -145,6 +145,11 @@ class MAT_OT_MIX_FileBrowser(Operator, ImportHelper):
     
     filename_ext = ""
 
+    def invoke(self, context, event):
+        self.filepath = bpy.context.scene.mixmat_properties.directory
+        wm = context.window_manager.fileselect_add(self)
+        return {'RUNNING_MODAL'}
+
     def execute(self, context):
         mixmat = bpy.context.scene.mixmat_properties
         fdir = self.properties.filepath
