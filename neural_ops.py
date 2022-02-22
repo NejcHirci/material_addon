@@ -267,7 +267,7 @@ class MAT_OT_NEURAL_EditMove(Operator):
         shutil.move(new_specular_path, old_specular_path)
         shutil.move(new_normal_path, old_normal_path)
 
-        in_dir  = os.path.join(gan.directory, 'out')
+        in_dir  = os.path.join(gan.directory)
         weight_dir = os.path.join(gan.directory, 'out', 'weights.ckpt')
 
         model_path = './trainings/Neuralmaterial'
