@@ -267,7 +267,7 @@ class MAT_OT_NEURAL_EditMove(Operator):
         shutil.move(new_specular_path, old_specular_path)
         shutil.move(new_normal_path, old_normal_path)
 
-        in_dir  = gan.directory
+        in_dir  = os.path.join(gan.directory, 'out')
         weight_dir = os.path.join(gan.directory, 'out', 'weights.ckpt')
 
         model_path = './trainings/Neuralmaterial'
@@ -276,7 +276,6 @@ class MAT_OT_NEURAL_EditMove(Operator):
         process = subprocess.Popen([PYTHON_EXE, '-u', './scripts/get_interpolations.py',
                 '--model', model_path,
                 '--input_path', in_dir,
-                '--weight_path', weight_dir,
                 '--h', str(gan.h_res),
                 '--w', str(gan.w_res)], stdout=subprocess.PIPE, cwd=str(Path(base_script_path, 'neuralmaterial')))
 

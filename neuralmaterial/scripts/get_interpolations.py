@@ -87,7 +87,7 @@ if __name__ == '__main__':
 
         z2, _, _, _ = inter_model.encode(inter_image, 'test')
 
-        dists = [0.4, -0.4]
+        dists = [0.3, -0.3]
 
         # sample noise
         x = torch.rand(1, cfg.model.w, args.h, args.w, device=device)
@@ -113,7 +113,7 @@ if __name__ == '__main__':
             torch.save(base_model.state_dict(), str(Path(output_path, f'{sem_id}_{inter_idx+1}_weights.ckpt')))
 
             # write outputs to disk
-            save_png(image_out, str(Path(output_path, f'{sem_id}_{inter_idx+1}_render.png')))
+            save_png(image_out, str(Path(output_path, f'{sem_id}_{inter_idx+1}_render.png')), gamma=1.0)
 
             for k, v in brdf_maps.items():
 

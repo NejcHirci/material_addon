@@ -48,7 +48,7 @@ class MaterialGANProps(bpy.types.PropertyGroup):
     epochs: bpy.props.IntProperty(name="Epochs", description="Number of iterations for material generation",
         default=2000, min=100, max=10000, options={'SKIP_SAVE'})
     directory: bpy.props.StringProperty(name="Import folder", description="The folder to import images from",
-        default="", options={'SKIP_SAVE'})
+        default="")
     progress: bpy.props.StringProperty(name="Progress value", description="", default="Not started.",
         options={'SKIP_SAVE'})
     h_res : bpy.props.IntProperty(name="Super resolution height", subtype="PIXEL", description="Height resolution for upscaling", \
@@ -62,7 +62,7 @@ class NeuralMaterialProps(bpy.types.PropertyGroup):
     epochs: bpy.props.IntProperty(name="Epochs", description="Number of iterations for material generation",
         default=2000, min=100, max=10000, options={'SKIP_SAVE'})
     directory: bpy.props.StringProperty(name="Import folder", description="The folder to import images from",
-        default="", options={'SKIP_SAVE'})
+        default="")
     progress: bpy.props.StringProperty(name="Progress value", description="", default="Not started.",
         options={'SKIP_SAVE'})
     h_res : bpy.props.IntProperty(name="Super resolution height", subtype="PIXEL", description="Height resolution for upscaling", \
@@ -73,7 +73,7 @@ class NeuralMaterialProps(bpy.types.PropertyGroup):
 
 class MixMaterialProps(bpy.types.PropertyGroup):
     directory: bpy.props.StringProperty(name="Import folder", description="The folder to import images from",
-        default="", options={'SKIP_SAVE'})
+        default="")
     progress: bpy.props.StringProperty(name="Progress value", description="", default="Not started.",
         options={'SKIP_SAVE'})
     material: bpy.props.EnumProperty(name="Preset materials", description="", items= { 
