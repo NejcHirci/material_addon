@@ -111,8 +111,7 @@ def register():
                 + 'generating textures from albedo with mix blender shader nodes for editing.')
         },
         default='MatGAN',
-        update=update_active_mat,
-        options={'SKIP_SAVE'}
+        update=update_active_mat
     )
 
 def unregister():
