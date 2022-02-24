@@ -1,4 +1,3 @@
-from tokenize import group
 import bpy
 import glob
 from bpy.types import Panel, Operator
@@ -25,6 +24,17 @@ def enqueue_output(out, queue):
     for line in iter(out.readline, b''):
         queue.put(line.decode('utf-8').strip())
     out.close()
+
+@persistent
+def on_addon_save(dummy):
+    for image in bpy.data.images:
+        # All images still in .cache should be stored elsewhere
+        if '.cache' in image.filepath:
+            if os.path.exists(image.filepath):
+                image.pack()
+            else:
+                bpy.data.images.remove(image)
+        
 
 @persistent
 def on_addon_load(dummy):
@@ -88,16 +98,22 @@ def update_active_mat(self, context):
         active_obj.active_material = mat
 
 # Copy files to .cache folder
-def copy_to_cache(src_path):
+def copy_to_cache(src_path, name):
+    dst_path = os.path.join(cache_path, name)
+    if not os.path.exists(dst_path):
+        os.makedirs(dst_path)
     if os.path.isdir(src_path):
         for file in os.listdir(os.fsencode(src_path)):
             f = os.fsdecode(file)
             if f.endswith(".png") or f.endswith(".pt") or f.endswith('.ckpt'): 
-                shutil.copyfile(os.path.join(src_path, f), os.path.join(cache_path, f))
+                shutil.copyfile(os.path.join(src_path, f), os.path.join(dst_path, f))
 
 def register():
     if on_addon_load not in bpy.app.handlers.load_post:
         bpy.app.handlers.load_post.append(on_addon_load)
+
+    if on_addon_save not in bpy.app.handlers.save_pre:
+        bpy.app.handlers.save_pre.append(on_addon_save)
 
     bpy.types.Scene.SelectWorkflow = bpy.props.EnumProperty(
         name='Material System Select',
@@ -117,8 +133,8 @@ def register():
 def unregister():
     if on_addon_load in bpy.app.handlers.load_post:
         bpy.app.handlers.load_post.remove(on_addon_load)
-    
-    del bpy.types.Scene.SelectWorkflow
+    if on_addon_save in bpy.app.handlers.save_pre:
+        bpy.app.handlers.save_pre.remove(on_addon_save)
 
 
 class MAT_PT_GeneratorPanel(Panel):
@@ -195,8 +211,9 @@ class MAT_PT_GeneratorPanel(Panel):
         x = MAT_OT_GalleryDirection.direction
         interp_dir = os.path.join(gan.directory, 'interps')
         out_dir =  os.path.join(gan.directory, 'out')
+        rname = f"{bpy.context.view_layer.objects.active.name}_{mode}" if bpy.context.view_layer.objects.active else mode
 
-        if f'7_{x}_render.png' in bpy.data.images and f'{mode}-render.png' in bpy.data.images:
+        if f'7_{x}_render.png' in bpy.data.images and f"{rname}_render.png" in bpy.data.images:
             layout = self.layout
             row = layout.row()
             sign = '+' if MAT_OT_GalleryDirection.direction == 1 else '-'
@@ -213,7 +230,7 @@ class MAT_PT_GeneratorPanel(Panel):
                 if id == 4:
                     in_box = cols.box()
                     col = in_box.column()
-                    img = bpy.data.images[f'{mode}-render.png']
+                    img = bpy.data.images[f'{rname}_render.png']
                     img.preview_ensure()
                     col.template_icon(icon_value=img.preview.icon_id, scale=10)
                     col.label(text="Current material")
@@ -354,8 +371,9 @@ class MAT_OT_StatusUpdater(Operator):
                     except:
                         pass
                 else:
-                    copy_to_cache(os.path.join(gan.directory, 'out'))
-                    update_matgan(cache_path)
+                    name = f"{bpy.context.view_layer.objects.active.name}_matgan" if bpy.context.view_layer.objects.active else "matgan"
+                    copy_to_cache(os.path.join(gan.directory, 'out'), name)
+                    update_matgan(os.path.join(cache_path, name))
                     gan.progress = "Material generated."
                     redraw_all(context)
                     MAT_OT_MATGAN_Generator._popen = None
@@ -384,8 +402,9 @@ class MAT_OT_StatusUpdater(Operator):
             elif MAT_OT_MATGAN_SuperResolution._popen:
                 if MAT_OT_MATGAN_SuperResolution._popen.poll() is not None:
                     gan.progress = "Material upscaled."
-                    copy_to_cache(os.path.join(gan.directory, 'out'))
-                    update_matgan(cache_path)
+                    name = f"{bpy.context.view_layer.objects.active.name}_matgan" if bpy.context.view_layer.objects.active else "matgan"
+                    copy_to_cache(os.path.join(gan.directory, 'out'), name)
+                    update_matgan(os.path.join(cache_path, name))
                     redraw_all(context)
                     MAT_OT_MATGAN_SuperResolution._popen = None
                     self._thread = None
@@ -404,9 +423,10 @@ class MAT_OT_StatusUpdater(Operator):
                     except:
                         pass
                 else:
-                    check_remove_img('matgan-render.png')
+                    name = f"{bpy.context.view_layer.objects.active.name}_matgan" if bpy.context.view_layer.objects.active else "matgan"
+                    check_remove_img(f'{name}_render.png')
                     img = bpy.data.images.load(os.path.join(gan.directory, 'out') + '/render.png')
-                    img.name = 'matgan-render.png'
+                    img.name = f'{name}_render.png'
 
                     interp_path = os.path.join(gan.directory, 'interps')
                     dir_list = sorted(glob.glob(interp_path + '/*_*_render.png'))
@@ -416,8 +436,9 @@ class MAT_OT_StatusUpdater(Operator):
                         img.name = os.path.split(dir)[1]
                     gan.progress = "Material interpolations generated."
                     gan.progress += f" Elapsed time: {time.time()-self._sTime:.3f}"
-                    copy_to_cache(os.path.join(gan.directory, 'out'))
-                    update_matgan(cache_path)
+                    
+                    copy_to_cache(os.path.join(gan.directory, 'out'), name)
+                    update_matgan(os.path.join(cache_path, name))
                     redraw_all(context)
                     MAT_OT_MATGAN_GetInterpolations._popen = None
                     self.cancel(context)
@@ -436,8 +457,9 @@ class MAT_OT_StatusUpdater(Operator):
                     except:
                         pass
                 else:
-                    copy_to_cache(os.path.join(gan.directory, 'out'))
-                    update_neural(cache_path)
+                    name = f"{bpy.context.view_layer.objects.active.name}_neural" if bpy.context.view_layer.objects.active else "neural"
+                    copy_to_cache(os.path.join(gan.directory, 'out'), name)
+                    update_neural(os.path.join(cache_path, name))
                     gan.progress = "Material generated."
                     gan.progress += f" Elapsed time: {time.time()-self._sTime:.3f}"
                     redraw_all(context)
@@ -457,9 +479,10 @@ class MAT_OT_StatusUpdater(Operator):
                     except:
                         pass
                 else:
-                    check_remove_img('neural-render.png')
+                    name = f"{bpy.context.view_layer.objects.active.name}_neural" if bpy.context.view_layer.objects.active else "neural"
+                    check_remove_img(f'{name}_render.png')
                     img = bpy.data.images.load(os.path.join(gan.directory, 'out') + '/render.png')
-                    img.name = 'neural-render.png'
+                    img.name = f'{name}_render.png'
 
                     interp_path = os.path.join(gan.directory, 'interps')
                     dir_list = sorted(glob.glob(interp_path + '/*_*_render.png'))
@@ -469,8 +492,8 @@ class MAT_OT_StatusUpdater(Operator):
                         img.name = os.path.split(dir)[1]
                     gan.progress = "Material interpolations generated."
                     gan.progress += f" Elapsed time: {time.time()-self._sTime:.3f}"
-                    copy_to_cache(os.path.join(gan.directory, 'out'))
-                    update_neural(cache_path)
+                    copy_to_cache(os.path.join(gan.directory, 'out'), name)
+                    update_neural(os.path.join(cache_path, name))
                     redraw_all(context)
                     MAT_OT_NEURAL_GetInterpolations._popen = None
                     self.cancel(context)

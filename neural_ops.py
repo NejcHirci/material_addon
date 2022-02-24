@@ -37,7 +37,7 @@ def update_neural(base_path):
         else:
             mat = bpy.data.materials[base_name]
     else:
-        base_name = "base"
+        base_name = "base_neural"
         mat = bpy.data.materials["neural_mat"]
         
     nodes = mat.node_tree.nodes
@@ -48,24 +48,24 @@ def update_neural(base_path):
     normal = nodes.get("Image Texture.003")
 
     if os.path.isfile(os.path.join(base_path, 'albedo.png')):
-        check_remove_img(f'{base_name}-neural-render.png')
+        check_remove_img(f'{base_name}_render.png')
         img = bpy.data.images.load(os.path.join(base_path, 'render.png'))
-        img.name = f'{base_name}-neural-render.png'
-        check_remove_img(f'{base_name}-neural-albedo.png')
+        img.name = f'{base_name}_render.png'
+        check_remove_img(f'{base_name}_albedo.png')
         img = bpy.data.images.load(os.path.join(base_path, 'albedo.png'))
-        img.name = f'{base_name}-neural-albedo.png'
+        img.name = f'{base_name}_albedo.png'
         albedo.image = img
-        check_remove_img(f'{base_name}-neural-specular.png')
+        check_remove_img(f'{base_name}_specular.png')
         img = bpy.data.images.load(os.path.join(base_path, 'specular.png'))
-        img.name = f'{base_name}-neural-specular.png'
+        img.name = f'{base_name}_specular.png'
         specular.image = img
-        check_remove_img(f'{base_name}-neural-rough.png')
+        check_remove_img(f'{base_name}_rough.png')
         img = bpy.data.images.load(os.path.join(base_path, 'rough.png'))
-        img.name = f'{base_name}-neural-rough.png'
+        img.name = f'{base_name}_rough.png'
         rough.image = img
-        check_remove_img(f'{base_name}-neural-normal.png')
+        check_remove_img(f'{base_name}_normal.png')
         img = bpy.data.images.load(os.path.join(base_path, 'normal.png'))
-        img.name = f'{base_name}-neural-normal.png'
+        img.name = f'{base_name}_normal.png'
         normal.image = img
 
 def replace_file(src_path, dst_path, retries=10, sleep=0.1):
@@ -229,16 +229,25 @@ class MAT_OT_NEURAL_EditMove(Operator):
     def poll(self, context):
         return "Material" in bpy.context.scene.neural_properties.progress
 
+
+    def preprocess(self, context):
+        if bpy.context.view_layer.objects.active:
+            name = f"{bpy.context.view_layer.objects.active.name}_matgan"
+        else:
+            name = "neural"
+        
+        # First unlink files
+        check_remove_img(f'{name}_render.png')
+        check_remove_img(f'{name}_albedo.png')
+        check_remove_img(f'{name}_rough.png')
+        check_remove_img(f'{name}_specular.png')
+        check_remove_img(f'{name}_normal.png')
+
     def execute(self, context):
         gan = bpy.context.scene.neural_properties
         interp_dir = os.path.join(gan.directory, 'interps')
 
-        # First unlink files
-        check_remove_img('neural-render.png')
-        check_remove_img('neural-albedo.png')
-        check_remove_img('neural-rough.png')
-        check_remove_img('neural-specular.png')
-        check_remove_img('neural-normal.png')
+        self.preprocess(context)
 
         new_weight_path = os.path.join(interp_dir, f'{self.direction}_1_weights.ckpt')
         new_render_path = os.path.join(interp_dir, f'{self.direction}_1_render.png')

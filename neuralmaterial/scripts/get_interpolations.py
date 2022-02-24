@@ -7,6 +7,7 @@ import torchvision.transforms as transforms
 from pathlib import Path
 from glob import glob
 import sys
+import time
 sys.path.insert(0, './')
 
 from scripts.test import save_png
@@ -80,18 +81,18 @@ if __name__ == '__main__':
     directions = glob("./data/*/")
     sem_id = 0
     for mat_dir in directions:
+        sTime = time.time()
         print(f"Generating semantic {sem_id+1}/{len(directions)}")
-        inter_model = load_model(str(Path(mat_dir, 'weights.ckpt')))
-        inter_weights = inter_model.decoder.state_dict()
-        inter_image = load_image(str(Path(mat_dir)))
 
-        z2, _, _, _ = inter_model.encode(inter_image, 'test')
+        inter_weights = torch.load(str(Path(mat_dir, 'inter_weights.ckpt')), map_location=device)
+        z2 = torch.load(str(Path(mat_dir, 'z2.pt')), map_location=device)
 
-        dists = [0.3, -0.3]
+        dists = [0.2, -0.2]
 
         # sample noise
         x = torch.rand(1, cfg.model.w, args.h, args.w, device=device)
 
+        sTime = time.time()
         for inter_idx in range(0, len(dists)):
             a = dists[inter_idx]
             z_inter = (1 - a) * z1 + a * z2
@@ -120,8 +121,6 @@ if __name__ == '__main__':
                 if k == 'normal':
                     v = (v + 1) / 2
                 
-                gamma = 1.0 if k == 'render' else 2.2
-                
-                save_png(v, str(Path(output_path, f'{sem_id}_{inter_idx+1}_{k}.png')), gamma=gamma)
-        
+                save_png(v, str(Path(output_path, f'{sem_id}_{inter_idx+1}_{k}.png')), gamma=2.2)
+        print(f"Generating all interps for one semantic {time.time()-sTime:.2f}")
         sem_id += 1
