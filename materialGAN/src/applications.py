@@ -9,6 +9,7 @@ import copy
 import global_var
 from util import *
 from render import *
+from optim import loadLightAndCamera
 
 sys.path.insert(1, 'materialGAN/higan/models/')
 from stylegan2_generator import StyleGAN2Generator
@@ -70,9 +71,10 @@ def generateLightCameraPosition(p, angle, colocated=True, addNoise=True):
             
     return light_pos[0], camera_pos[0]
 
+
 def save_render_and_map(save_name, save_dir, img_np):
-    light_position_np, camera_position_np = generateLightCameraPosition(20, 20, True, False)
-    light_intensity_np = np.array([1500.0, 1500.0, 1500.0])
+
+    light_position_np, camera_position_np, _, light_intensity_np = loadLightAndCamera(save_dir)
 
     with torch.no_grad():
         if th.cuda.is_available():
