@@ -62,6 +62,10 @@ if __name__ == '__main__':
         global_var.init_global_noise(256, "random")
         return copy.deepcopy(global_var.noises)
     rand_noises = [rand_noise() for _ in range(8)]
+
+    input_path = os.path.abspath(os.path.join(args.latent_path, os.pardir, os.pardir))
+    input_path = os.path.join(input_path, 'input/')
+
     
     for sem_id in range(8):
         boundary = boundaries[sem_id:sem_id + 1]
@@ -73,5 +77,5 @@ if __name__ == '__main__':
             torch.save(global_var.noises, os.path.join(args.save_dir, f'{sem_id}_{col_id}_optim_noise.pt'))
             image = generator.net.synthesis(torch.from_numpy(temp_code).type(torch.FloatTensor).cuda())
             image = generator.get_value(image)[0]
-            save_render_and_map(f"{sem_id}_{col_id}", args.save_dir, image, os.path.dirname(args.latent_path))
+            save_render_and_map(f"{sem_id}_{col_id}", args.save_dir, image, input_path)
         print("Semantics generated {}/8".format(sem_id+1))
