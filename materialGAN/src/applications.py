@@ -9,10 +9,21 @@ import copy
 import global_var
 from util import *
 from render import *
-from optim import loadLightAndCamera
 
 sys.path.insert(1, 'materialGAN/higan/models/')
 from stylegan2_generator import StyleGAN2Generator
+
+
+def loadLightAndCamera(in_dir):
+    camera_pos = np.loadtxt(os.path.join(in_dir, 'camera_pos.txt'), delimiter=',').astype(np.float32)
+
+    light_pos = np.loadtxt(os.path.join(in_dir, 'light_pos.txt'), delimiter=',').astype(np.float32)
+
+    im_size = np.loadtxt(os.path.join(in_dir, 'image_size.txt'), delimiter=',')
+    im_size = float(im_size)
+    light = np.loadtxt(os.path.join(in_dir, 'light_power.txt'), delimiter=',')
+
+    return light_pos, camera_pos, im_size, light
 
 
 def save_image(output, save_dir, save_name, make_dir=False, is_naive=False):
@@ -112,7 +123,6 @@ def save_render_and_map(save_name, save_dir, img_np):
         render = gyApplyGamma(render, 1 / 2.2)
         render = gyArray2PIL(render)
         render.save(os.path.join(save_dir, f'{save_name}_render.png'))
-
 
 
 def render_map(img_np):
