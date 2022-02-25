@@ -1388,10 +1388,10 @@ def register(bl_info):
     # 			/addons/{__package__}/{__package__}_updater
 
     # Auto create a backup of the addon when installing other versions.
-    updater.backup_current = True  # True by default
+    updater.backup_current = False  # True by default
 
     # Sample ignore patterns for when creating backup of current during update.
-    updater.backup_ignore_patterns = ["__pycache__"]
+    updater.backup_ignore_patterns = ["__pycache__", "venv", "neuralmaterial/data", "neuralmaterial/trainings", "materialGAN/data"]
     # Alternate example patterns:
     # updater.backup_ignore_patterns = [".git", "__pycache__", "*.bat", ".gitignore", "*.exe"]
 

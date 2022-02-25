@@ -803,6 +803,8 @@ class SingletonUpdater:
             return False
 
     def create_backup(self):
+        print(self._backup_current)
+        print("WE SHOULD NOT BE HERE")
         """Save a backup of the current installed addon prior to an update."""
         self.print_verbose("Backing up current addon folder")
         local = os.path.join(self._updater_path, "backup")
