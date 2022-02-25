@@ -23,7 +23,7 @@ def loadLightAndCamera(in_dir):
     im_size = float(im_size)
     light = np.loadtxt(os.path.join(in_dir, 'light_power.txt'), delimiter=',')
 
-    return light_pos, camera_pos, im_size, light
+    return light_pos[0], camera_pos[0], im_size, light
 
 
 def save_image(output, save_dir, save_name, make_dir=False, is_naive=False):
@@ -86,6 +86,7 @@ def generateLightCameraPosition(p, angle, colocated=True, addNoise=True):
 def save_render_and_map(save_name, save_dir, img_np, in_dir):
 
     light_position_np, camera_position_np, _, light_intensity_np = loadLightAndCamera(in_dir)
+
 
     with torch.no_grad():
         if th.cuda.is_available():
