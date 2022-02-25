@@ -94,7 +94,7 @@ class SingletonUpdater:
         self._check_interval_minutes = 0
 
         # runtime variables, initial conditions
-        self._verbose = False
+        self._verbose = True
         self._use_print_traces = True
         self._fake_install = False
         self._async_checking = False  # only true when async daemon started

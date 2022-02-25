@@ -280,7 +280,7 @@ class MAT_PT_GeneratorPanel(Panel):
         col.operator("neural.stop_generator", text="", icon="PAUSE")
         row = layout.row()
         col = row.column()
-        col.operator("neural.reseed", text="Reseed Material")
+        col.operator("neural.reseed", text="Upscale Material")
 
         layout.separator()
 

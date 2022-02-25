@@ -93,7 +93,9 @@ if __name__ == '__main__':
     print("Generating output")
 
     # run forward pass and retrieve brdf decomposition
-    image_out, brdf_maps, _, _ , _ = model.forward(image, 'test', size=(args.h, args.w))
+    h_res = round(args.h / 16) * 16
+    w_res = round(args.w / 16) * 16
+    image_out, brdf_maps, _, _ , _ = model.forward(image, 'test', size=(h_res, w_res))
 
     # write outputs to disk
     save_png(image_out, str(Path(output_path,'render.png')))

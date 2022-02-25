@@ -1,4 +1,3 @@
-from torch import fix_
 import bpy
 
 def update_mixmat_interpolate(self, context):
@@ -42,13 +41,6 @@ def update_mixmat_direction(self, context):
 
     bpy.data.materials[context.scene.mixmat_properties.material].preview.reload()
 
-
-def fix_res(self, context):
-    # Must be divisble by 16
-    context.scene.neural_properties.h_res = round(context.scene.neural_properties.h_res / 16) * 16
-    context.scene.neural_properties.w_res = round(context.scene.neural_properties.w_res / 16) * 16
-
-
 class MaterialGANProps(bpy.types.PropertyGroup):
     num_rend: bpy.props.IntProperty( name="N", description="Number of images used for material generation",
         default=9, min=1, max=9, options={'SKIP_SAVE'})
@@ -73,9 +65,9 @@ class NeuralMaterialProps(bpy.types.PropertyGroup):
     progress: bpy.props.StringProperty(name="Progress value", description="", default="Not started.",
         options={'SKIP_SAVE'})
     h_res : bpy.props.IntProperty(name="Super resolution height", subtype="PIXEL", description="Height resolution for upscaling", \
-        default=1024, min=512, max=3008, update=fix_res)
+        default=1024, min=512, max=3008)
     w_res : bpy.props.IntProperty(name="Super resolution width", subtype="PIXEL", description="Width resolution for upscaling", \
-        default=1024, min=512, max=3008, update=fix_res)
+        default=1024, min=512, max=3008)
     seed : bpy.props.IntProperty(name="Seed", description="Seed used for material generation", default=42, min=0, max=100000)
 
 class MixMaterialProps(bpy.types.PropertyGroup):

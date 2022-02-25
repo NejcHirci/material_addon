@@ -90,7 +90,9 @@ if __name__ == '__main__':
         dists = [0.2, -0.2]
 
         # sample noise
-        x = torch.rand(1, cfg.model.w, args.h, args.w, device=device)
+        h_res = round(args.h / 16) * 16
+        w_res = round(args.w / 16) * 16
+        x = torch.rand(1, cfg.model.w, h_res, w_res, device=device)
 
         sTime = time.time()
         for inter_idx in range(0, len(dists)):
