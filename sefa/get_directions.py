@@ -20,10 +20,10 @@ if __name__ == '__main__':
     parser.add_argument('--save_dir', type=str, required=True)
     parser.add_argument('--latent_path', type=str, required=True)
     parser.add_argument('--noise_path', type=str, required=True)
-    parser.add_argument('--start_distance', type=float, default=-6.0,
+    parser.add_argument('--start_distance', type=float, default=-10.0,
                         help='Start point for manipulation on each semantic. '
                              '(default: %(default)s)')
-    parser.add_argument('--end_distance', type=float, default=6.0,
+    parser.add_argument('--end_distance', type=float, default=10.0,
                         help='Ending point for manipulation on each semantic. '
                              '(default: %(default)s)')
     parser.add_argument('--step', type=int, default=2,
