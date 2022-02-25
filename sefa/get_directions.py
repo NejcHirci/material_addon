@@ -73,5 +73,5 @@ if __name__ == '__main__':
             torch.save(global_var.noises, os.path.join(args.save_dir, f'{sem_id}_{col_id}_optim_noise.pt'))
             image = generator.net.synthesis(torch.from_numpy(temp_code).type(torch.FloatTensor).cuda())
             image = generator.get_value(image)[0]
-            save_render_and_map(f"{sem_id}_{col_id}", args.save_dir, image)
+            save_render_and_map(f"{sem_id}_{col_id}", args.save_dir, image, os.path.dirname(args.latent_path))
         print("Semantics generated {}/8".format(sem_id+1))

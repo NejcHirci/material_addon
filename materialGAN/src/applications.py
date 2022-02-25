@@ -83,9 +83,9 @@ def generateLightCameraPosition(p, angle, colocated=True, addNoise=True):
     return light_pos[0], camera_pos[0]
 
 
-def save_render_and_map(save_name, save_dir, img_np):
+def save_render_and_map(save_name, save_dir, img_np, in_dir):
 
-    light_position_np, camera_position_np, _, light_intensity_np = loadLightAndCamera(save_dir)
+    light_position_np, camera_position_np, _, light_intensity_np = loadLightAndCamera(in_dir)
 
     with torch.no_grad():
         if th.cuda.is_available():
