@@ -46,7 +46,7 @@ if __name__ == '__main__':
     if torch.cuda.is_available:
         device=torch.device('cuda')
     
-    distances = np.linspace(args.start_distance,args.end_distance, args.step)
+    distances = [-20.0, 20.0]
 
     # Already in wp+ space
     code = torch.load(args.latent_path).detach().cpu().numpy()
