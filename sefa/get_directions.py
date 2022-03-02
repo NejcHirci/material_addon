@@ -46,7 +46,7 @@ if __name__ == '__main__':
     if torch.cuda.is_available:
         device=torch.device('cuda')
     
-    distances = [-20.0, 20.0]
+    distances = [-10.0, 10.0]
 
     # Already in wp+ space
     code = torch.load(args.latent_path).detach().cpu().numpy()
@@ -58,11 +58,6 @@ if __name__ == '__main__':
             noise = noise.cuda()
         noises.append(noise)
 
-    def rand_noise():
-        global_var.init_global_noise(256, "random")
-        return copy.deepcopy(global_var.noises)
-    rand_noises = [rand_noise() for _ in range(8)]
-
     input_path = os.path.abspath(os.path.join(args.latent_path, os.pardir, os.pardir))
     input_path = os.path.join(input_path, 'input/')
 
@@ -72,7 +67,7 @@ if __name__ == '__main__':
         for col_id, d in enumerate(distances, start=1):
             temp_code = code.copy()
             temp_code[:, 0:9, :] += boundary * d
-            global_var.noises = lerp_noises(noises, rand_noises[sem_id], 0.1)
+            global_var.noises = noises
             torch.save(torch.from_numpy(temp_code).type(torch.FloatTensor), os.path.join(args.save_dir, f'{sem_id}_{col_id}_optim_latent.pt'))
             torch.save(global_var.noises, os.path.join(args.save_dir, f'{sem_id}_{col_id}_optim_noise.pt'))
             image = generator.net.synthesis(torch.from_numpy(temp_code).type(torch.FloatTensor).cuda())

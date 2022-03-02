@@ -11,7 +11,9 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     direct_dir = 'materialGAN/data/directions/'
-    mat_list = ['leather', 'plastic', 'rubber', 'stone', 'wall', 'wood']
+    mat_list = ['leather_darkbrown', 'metal_rust_blue', 
+    'plastic_green', 'plastic_red_carton', 'rocks_brown', 
+    'stone_spec_shiny', 'wall_plaster_white', 'wood_beige']
 
     latent_list = [args.latent_path]
     noises_list = [args.noise_path]

@@ -436,9 +436,6 @@ class MAT_OT_StatusUpdater(Operator):
                         img.name = os.path.split(dir)[1]
                     gan.progress = "Material interpolations generated."
                     gan.progress += f" Elapsed time: {time.time()-self._sTime:.3f}"
-                    
-                    copy_to_cache(os.path.join(gan.directory, 'out'), name)
-                    update_matgan(os.path.join(cache_path, name))
                     redraw_all(context)
                     MAT_OT_MATGAN_GetInterpolations._popen = None
                     self.cancel(context)

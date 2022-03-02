@@ -1,5 +1,6 @@
 import numpy as np
 from numpy.lib.npyio import save
+from pyparsing import col
 import torch
 import sys
 import os
@@ -382,25 +383,28 @@ def interpolate_single_texture(latent_paths,
             noise_vars.append(noise)
         all_noises.append(noise_vars)
 
-    ts = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
+    ts = [0.4, -0.4]
 
     name1 = os.path.basename(os.path.dirname(latent_paths[0]))
 
-    for j in range(1, len(all_latents), 1):
+    input_path = os.path.abspath(os.path.join(latent_paths[0], os.pardir, os.pardir))
+    input_path = os.path.join(input_path, 'input/')
 
-        name2 = os.path.basename(os.path.dirname(latent_paths[j]))
+    for sem_id in range(1, len(all_latents), 1):
 
-        for t in ts:
-            noises = lerp_noises(all_noises[0], all_noises[j], t)
-            lerp_latent = lerp(all_latents[0], all_latents[j], t)
+        print("Generating semantic {}/8".format(sem_id))
+
+        for col_id in range(len(ts)):
+            t = ts[col_id]
+            noises = lerp_noises(all_noises[0], all_noises[sem_id], t)
+            lerp_latent = lerp(all_latents[0], all_latents[sem_id], t)
 
             global_var.noises = noises
             outputs = genObj.synthesize(lerp_latent, latent_space_type="wp")
 
             latent = torch.from_numpy(lerp_latent)
 
-            save_name = "{}_{}".format(name2, t)
-            print("Saving " + save_name)
-            save_image({'image': outputs['image']}, save_dir, save_name, make_dir=True)
-            th.save(latent, os.path.join(os.path.join(save_dir, save_name), 'optim_latent.pt'))
-            th.save(global_var.noises, os.path.join(os.path.join(save_dir, save_name), 'optim_noise.pt'))
+            save_render_and_map(f"{sem_id}_{col_id}", save_dir, outputs['image'][0], input_path)
+            
+            torch.save(latent, os.path.join(save_dir, f'{sem_id}_{col_id}_optim_latent.pt'))
+            torch.save(global_var.noises, os.path.join(save_dir, f'{sem_id}_{col_id}_optim_noise.pt'))

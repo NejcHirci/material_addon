@@ -157,7 +157,7 @@ class MAT_OT_MATGAN_GetInterpolations(Operator):
         noise_path = os.path.join(out, 'optim_noise.pt')
 
         # Call to generate texture maps
-        process = subprocess.Popen([PYTHON_EXE, '-u', './sefa/get_directions.py', 
+        process = subprocess.Popen([PYTHON_EXE, '-u', './materialGAN/src/get_directions.py', 
                 '--save_dir', save_dir,
                 '--latent_path', latent_path,
                 '--noise_path', noise_path
@@ -286,10 +286,10 @@ class MAT_OT_MATGAN_EditMove(Operator):
         update_matgan(out)
 
         # Call to generate texture maps
-        process = subprocess.Popen([PYTHON_EXE, '-u', './sefa/get_directions.py', 
+        process = subprocess.Popen([PYTHON_EXE, '-u', './materialGAN/src/get_directions.py', 
                 '--save_dir', interp_dir,
                 '--latent_path', old_latent_path,
-                '--noise_path', os.path.join(out, 'optim_noise.pt')
+                '--noise_path', old_noise_path
                 ], stdout=subprocess.PIPE, cwd=str(base_script_path))
         MAT_OT_MATGAN_GetInterpolations._popen = process
 
