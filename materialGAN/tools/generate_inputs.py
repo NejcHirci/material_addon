@@ -207,7 +207,10 @@ def reorder(arr, list1, list2, list3, list4, list5):
 
 def process(in_dir, tmp_dir):
 
-    image_size = 17.4
+    try:
+        image_size = float(in_dir[-4:])
+    except ValueError:
+        image_size = 17.4
 
     ##
     objectPoints = obj_points.initObjPoints(image_size)  # letter

@@ -9,7 +9,7 @@ def gyListNames(in_dir):
     return fn_list
 
 root_dir = 'materialGAN/data/'
-in_dir = 'D:/materials/MaterialGAN/'
+in_dir = 'D:/new_materials/'
 cp_dir  = root_dir + 'pretrain/'
 vgg_dir = cp_dir + 'vgg_conv.pt'
 

@@ -73,6 +73,7 @@ def fix_missing(mat):
             img = n.image
             if img is not None and not img.has_data:
                 img = bpy.data.images.load(os.path.join(Path(__file__).parent.resolve(), 'blank.jpg'))
+                img.pack()
                 img.name = 'blank.jpg'
                 n.image = img
 
@@ -91,9 +92,9 @@ def update_active_mat(self, context):
         if name not in bpy.data.materials:
             mat = bpy.data.materials[base_name].copy()
             mat.name = name
-            fix_missing(mat)
         else:
             mat = bpy.data.materials[name]
+        fix_missing(mat)
         
         active_obj.active_material = mat
 

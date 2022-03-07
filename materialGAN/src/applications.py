@@ -86,7 +86,7 @@ def generateLightCameraPosition(p, angle, colocated=True, addNoise=True):
 
 def save_render_and_map(save_name, save_dir, img_np, in_dir):
 
-    light_position_np, camera_position_np, _, light_intensity_np = loadLightAndCamera(in_dir)
+    light_position_np, camera_position_np, img_size, light_intensity_np = loadLightAndCamera(in_dir)
 
 
     with torch.no_grad():
@@ -118,7 +118,7 @@ def save_render_and_map(save_name, save_dir, img_np, in_dir):
         normal.save(os.path.join(save_dir, f'{save_name}_normal.png'))
         roughness.save(os.path.join(save_dir, f'{save_name}_rough.png'))
 
-        microfacetObj = Microfacet(res=256, size=20)
+        microfacetObj = Microfacet(res=256, size=img_size)
         render = microfacetObj.eval(img_t, light_position_np, camera_position_np, light_intensity_t)
         render = render[0].detach().cpu().numpy()
         render = np.transpose(render, (1, 2, 0))
@@ -404,7 +404,7 @@ def interpolate_single_texture(latent_paths,
 
             latent = torch.from_numpy(lerp_latent)
 
-            save_render_and_map(f"{sem_id}_{col_id}", save_dir, outputs['image'][0], input_path)
+            save_render_and_map(f"{sem_id}_{col_id+1}", save_dir, outputs['image'][0], input_path)
             
-            torch.save(latent, os.path.join(save_dir, f'{sem_id}_{col_id}_optim_latent.pt'))
-            torch.save(global_var.noises, os.path.join(save_dir, f'{sem_id}_{col_id}_optim_noise.pt'))
+            torch.save(latent, os.path.join(save_dir, f'{sem_id}_{col_id+1}_optim_latent.pt'))
+            torch.save(global_var.noises, os.path.join(save_dir, f'{sem_id}_{col_id+1}_optim_noise.pt'))

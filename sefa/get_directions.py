@@ -46,7 +46,14 @@ if __name__ == '__main__':
     if torch.cuda.is_available:
         device=torch.device('cuda')
     
-    distances = [-10.0, 10.0]
+    all_distances = [[-10.0, 5.0],
+                    [-12.0, 12.0], 
+                    [-14.0, 14.0], 
+                    [-14.0, 14.0],
+                    [-17.0, 17.0],
+                    [-17.0, 17.0],
+                    [-17.0, 17.0],
+                    [-10.0, 10.0]]
 
     # Already in wp+ space
     code = torch.load(args.latent_path).detach().cpu().numpy()
@@ -64,6 +71,7 @@ if __name__ == '__main__':
     
     for sem_id in range(8):
         boundary = boundaries[sem_id:sem_id + 1]
+        distances = all_distances[sem_id]
         for col_id, d in enumerate(distances, start=1):
             temp_code = code.copy()
             temp_code[:, 0:9, :] += boundary * d
