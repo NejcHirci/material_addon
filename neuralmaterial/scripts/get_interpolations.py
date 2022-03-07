@@ -61,19 +61,26 @@ if __name__ == '__main__':
     base_image = load_image(Path(args.input_path, 'out'))
 
     # load model with weights
-    def load_model(weights):
-        model = NeuralMaterial(cfg.model)
+    def load_state_dict(weights):
         weights_path = str(Path(weights))
         state_dict = torch.load(weights_path)
-        model.load_state_dict(state_dict)
-        model.eval()
-        model.to(device)
 
-        return model
+        return state_dict
 
-    base_model = load_model(args.weight_path)
-    base_weights = base_model.decoder.state_dict()
-    z1, _, _, _ = base_model.encode(base_image, 'test')
+    
+    model = NeuralMaterial(cfg.model)
+    model.eval()
+    model.to(device)
+
+
+    state_dict_pre = load_state_dict(Path(args.model, 'checkpoint', 'latest.ckpt'))
+    state_dict_base = load_state_dict(args.weight_path)
+
+
+
+    model.load_state_dict(state_dict_pre)
+
+    z1, _, _, _ = model.encode(base_image, 'test')
 
     output_path = Path(args.input_path, 'interps')
     output_path.mkdir(parents=True, exist_ok=True)
@@ -83,9 +90,12 @@ if __name__ == '__main__':
     for mat_dir in directions:
         sTime = time.time()
         print(f"Generating semantic {sem_id+1}/{len(directions)}")
+        
+        model.load_state_dict(state_dict_pre)
 
-        inter_weights = torch.load(str(Path(mat_dir, 'inter_weights.ckpt')), map_location=device)
-        z2 = torch.load(str(Path(mat_dir, 'z2.pt')), map_location=device)
+        state_dict_sem = load_state_dict(Path(mat_dir, 'weights.ckpt'))
+        sem_img = load_image(mat_dir)
+        z2, _, _, _ = model.encode(sem_img, 'test')
 
         dists = [0.2, -0.2]
 
@@ -101,19 +111,19 @@ if __name__ == '__main__':
             
             state_dict_inter = {}
 
-            for k in base_weights.keys():            
-                state_dict_inter[k] = (1 - a) * base_weights[k] + a * inter_weights[k]
+            for k in state_dict_pre.keys():            
+                state_dict_inter[k] = (1 - a) * state_dict_base[k] + a * state_dict_sem[k]
 
-            base_model.decoder.load_state_dict(state_dict_inter)
+            model.load_state_dict(state_dict_inter)
 
             # convert noise to brdf maps using CNN
-            brdf_maps = base_model.decode(z_inter, x)
+            brdf_maps = model.decode(z_inter, x)
 
             # render brdf maps using differentiable rendering
-            image_out = base_model.renderer(brdf_maps)
+            image_out = model.renderer(brdf_maps)
 
             # write weights to disk
-            torch.save(base_model.state_dict(), str(Path(output_path, f'{sem_id}_{inter_idx+1}_weights.ckpt')))
+            torch.save(state_dict_inter, str(Path(output_path, f'{sem_id}_{inter_idx+1}_weights.ckpt')))
 
             # write outputs to disk
             save_png(image_out, str(Path(output_path, f'{sem_id}_{inter_idx+1}_render.png')), gamma=1.0)
