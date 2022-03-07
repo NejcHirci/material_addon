@@ -67,6 +67,11 @@ def on_addon_load(dummy):
         img.name = i
         img.preview_ensure()
 
+    
+    # Fix all missing textures
+    for mat in bpy.data.materials:
+        fix_missing(mat)
+
 def fix_missing(mat):
     for n in mat.node_tree.nodes:
         if n.type == 'TEX_IMAGE':

@@ -232,7 +232,7 @@ class MAT_OT_NEURAL_EditMove(Operator):
 
     def preprocess(self, context):
         if bpy.context.view_layer.objects.active:
-            name = f"{bpy.context.view_layer.objects.active.name}_matgan"
+            name = f"{bpy.context.view_layer.objects.active.name}_neural"
         else:
             name = "neural"
         
