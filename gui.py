@@ -27,14 +27,31 @@ def enqueue_output(out, queue):
 
 @persistent
 def on_addon_save(dummy):
-    for image in bpy.data.images:
-        # All images still in .cache should be stored elsewhere
-        if '.cache' in image.filepath:
-            if os.path.exists(image.filepath):
-                image.pack()
-            else:
-                bpy.data.images.remove(image)
-        
+    for mat in bpy.data.materials:
+        if "matgan" in mat.name:
+            match = re.match(".+?(?=_matgan_mat)", mat.name)
+            obj_name = match[0] if match else ""
+
+            if obj_name in bpy.data.objects:
+                obj = bpy.data.objects[obj_name]
+                dir = os.path.join(obj["MaterialGAN_Path"], 'out')
+                update_matgan(obj, dir)
+        elif "neural" in mat.name:
+            match = re.match(".+?(?=_neural_mat)", mat.name)
+            obj_name = match[0] if match else ""
+            
+            if obj_name in bpy.data.objects:
+                obj = bpy.data.objects[obj_name]
+                dir = os.path.join(obj["Neural_Path"], 'out')
+                update_neural(obj, dir)
+        elif "mix" in mat.name:
+            match = re.match(".+?(?=_mix_mat)", mat.name)
+            obj_name = match[0] if match else ""
+            
+            if obj_name in bpy.data.objects:
+                obj = bpy.data.objects[obj_name]
+                dir = os.path.join(obj["Algorithmic_Path"], 'out')
+                update_mix(obj, dir)
 
 @persistent
 def on_addon_load(dummy):
@@ -67,23 +84,8 @@ def on_addon_load(dummy):
         img.name = i
         img.preview_ensure()
 
-    
-    # Fix all missing textures
-    for mat in bpy.data.materials:
-        fix_missing(mat)
-
-def fix_missing(mat):
-    for n in mat.node_tree.nodes:
-        if n.type == 'TEX_IMAGE':
-            img = n.image
-            if img is not None and not img.has_data:
-                img = bpy.data.images.load(os.path.join(Path(__file__).parent.resolve(), 'blank.jpg'))
-                img.pack()
-                img.name = 'blank.jpg'
-                n.image = img
-
 def update_active_mat(self, context):
-    active_obj = bpy.context.view_layer.objects.active
+    active_obj = bpy.context.active_object
     if active_obj:
         if context.scene.SelectWorkflow == 'MatGAN':
             base_name = "matgan_mat"
@@ -99,7 +101,6 @@ def update_active_mat(self, context):
             mat.name = name
         else:
             mat = bpy.data.materials[name]
-        fix_missing(mat)
         
         active_obj.active_material = mat
 
@@ -217,7 +218,7 @@ class MAT_PT_GeneratorPanel(Panel):
         x = MAT_OT_GalleryDirection.direction
         interp_dir = os.path.join(gan.directory, 'interps')
         out_dir =  os.path.join(gan.directory, 'out')
-        rname = f"{bpy.context.view_layer.objects.active.name}_{mode}" if bpy.context.view_layer.objects.active else mode
+        rname = f"{bpy.context.active_object.name}_{mode}" if bpy.context.active_object else mode
 
         if f'7_{x}_render.png' in bpy.data.images and f"{rname}_render.png" in bpy.data.images:
             layout = self.layout
@@ -370,16 +371,16 @@ class MAT_OT_StatusUpdater(Operator):
                     try:
                         line = self._q.get_nowait()
                         print(line)
-                        update_matgan(os.path.join(gan.directory, 'out'))
+                        update_matgan(bpy.context.active_object, os.path.join(gan.directory, 'out'))
                         gan.progress = line
                         gan.progress += f" Elapsed time: {time.time()-self._sTime:.3f}"
                         redraw_all(context)
                     except:
                         pass
                 else:
-                    name = f"{bpy.context.view_layer.objects.active.name}_matgan" if bpy.context.view_layer.objects.active else "matgan"
+                    name = f"{bpy.context.active_object.name}_matgan" if bpy.context.active_object else "matgan"
                     copy_to_cache(os.path.join(gan.directory, 'out'), name)
-                    update_matgan(os.path.join(cache_path, name))
+                    update_matgan(bpy.context.active_object, os.path.join(cache_path, name))
                     gan.progress = "Material generated."
                     redraw_all(context)
                     MAT_OT_MATGAN_Generator._popen = None
@@ -408,9 +409,9 @@ class MAT_OT_StatusUpdater(Operator):
             elif MAT_OT_MATGAN_SuperResolution._popen:
                 if MAT_OT_MATGAN_SuperResolution._popen.poll() is not None:
                     gan.progress = "Material upscaled."
-                    name = f"{bpy.context.view_layer.objects.active.name}_matgan" if bpy.context.view_layer.objects.active else "matgan"
+                    name = f"{bpy.context.active_object.name}_matgan" if bpy.context.active_object else "matgan"
                     copy_to_cache(os.path.join(gan.directory, 'out'), name)
-                    update_matgan(os.path.join(cache_path, name))
+                    update_matgan(bpy.context.active_object, os.path.join(cache_path, name))
                     redraw_all(context)
                     MAT_OT_MATGAN_SuperResolution._popen = None
                     self._thread = None
@@ -429,7 +430,7 @@ class MAT_OT_StatusUpdater(Operator):
                     except:
                         pass
                 else:
-                    name = f"{bpy.context.view_layer.objects.active.name}_matgan" if bpy.context.view_layer.objects.active else "matgan"
+                    name = f"{bpy.context.active_object.name}_matgan" if bpy.context.active_object else "matgan"
                     check_remove_img(f'{name}_render.png')
                     img = bpy.data.images.load(os.path.join(gan.directory, 'out') + '/render.png')
                     img.name = f'{name}_render.png'
@@ -453,16 +454,16 @@ class MAT_OT_StatusUpdater(Operator):
                     try:
                         line = self._q.get_nowait()
                         print(line)
-                        update_neural(os.path.join(gan.directory, 'out'))
+                        update_neural(bpy.context.active_object, os.path.join(gan.directory, 'out'))
                         gan.progress = line
                         gan.progress += f" Elapsed time: {time.time()-self._sTime:.3f}"
                         redraw_all(context)
                     except:
                         pass
                 else:
-                    name = f"{bpy.context.view_layer.objects.active.name}_neural" if bpy.context.view_layer.objects.active else "neural"
+                    name = f"{bpy.context.active_object.name}_neural" if bpy.context.active_object else "neural"
                     copy_to_cache(os.path.join(gan.directory, 'out'), name)
-                    update_neural(os.path.join(cache_path, name))
+                    update_neural(bpy.context.active_object, os.path.join(cache_path, name))
                     gan.progress = "Material generated."
                     gan.progress += f" Elapsed time: {time.time()-self._sTime:.3f}"
                     redraw_all(context)
@@ -482,7 +483,7 @@ class MAT_OT_StatusUpdater(Operator):
                     except:
                         pass
                 else:
-                    name = f"{bpy.context.view_layer.objects.active.name}_neural" if bpy.context.view_layer.objects.active else "neural"
+                    name = f"{bpy.context.active_object.name}_neural" if bpy.context.active_object else "neural"
                     check_remove_img(f'{name}_render.png')
                     img = bpy.data.images.load(os.path.join(gan.directory, 'out') + '/render.png')
                     img.name = f'{name}_render.png'
@@ -496,7 +497,7 @@ class MAT_OT_StatusUpdater(Operator):
                     gan.progress = "Material interpolations generated."
                     gan.progress += f" Elapsed time: {time.time()-self._sTime:.3f}"
                     copy_to_cache(os.path.join(gan.directory, 'out'), name)
-                    update_neural(os.path.join(cache_path, name))
+                    update_neural(bpy.context.active_object, os.path.join(cache_path, name))
                     redraw_all(context)
                     MAT_OT_NEURAL_GetInterpolations._popen = None
                     self.cancel(context)

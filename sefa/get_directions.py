@@ -46,14 +46,14 @@ if __name__ == '__main__':
     if torch.cuda.is_available:
         device=torch.device('cuda')
     
-    all_distances = [[-10.0, 5.0],
+    all_distances = [[-8.0, 3.0],
+                    [-10.0, 10.0], 
                     [-12.0, 12.0], 
-                    [-14.0, 14.0], 
-                    [-14.0, 14.0],
-                    [-17.0, 17.0],
-                    [-17.0, 17.0],
-                    [-17.0, 17.0],
-                    [-10.0, 10.0]]
+                    [-12.0, 12.0],
+                    [-15.0, 15.0],
+                    [-15.0, 15.0],
+                    [-15.0, 15.0],
+                    [-8.0, 8.0]]
 
     # Already in wp+ space
     code = torch.load(args.latent_path).detach().cpu().numpy()

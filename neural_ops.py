@@ -25,12 +25,9 @@ def check_remove_img(name):
         bpy.data.images.remove(image)
 
 # Function for updating textures during material generation.
-def update_neural(base_path):
-    # Update textures if they already exist
-    active_obj = bpy.context.view_layer.objects.active
-
-    if active_obj:
-        base_name = f"{active_obj.name}_neural_mat"
+def update_neural(obj, base_path):
+    if obj:
+        base_name = f"{obj.name}_neural_mat"
         if base_name not in bpy.data.materials:
             mat = bpy.data.materials["neural_mat"].copy()
             mat.name = base_name
@@ -99,13 +96,16 @@ class MAT_OT_NEURAL_GetInterpolations(Operator):
 
         model_path = './trainings/Neuralmaterial'
 
+        max_w = min(neural.w_res, 1024)
+        max_h = min(neural.h_res, 1024)
+
         # Call to generate texture maps
         process = subprocess.Popen([PYTHON_EXE, '-u', './scripts/get_interpolations.py',
                 '--model', model_path,
                 '--input_path', in_dir,
                 '--weight_path', weight_dir,
-                '--h', str(neural.h_res),
-                '--w', str(neural.w_res)], stdout=subprocess.PIPE, cwd=str(Path(base_script_path, 'neuralmaterial')))
+                '--h', str(max_h),
+                '--w', str(max_w)], stdout=subprocess.PIPE, cwd=str(Path(base_script_path, 'neuralmaterial')))
 
         MAT_OT_NEURAL_GetInterpolations._popen = process
 
@@ -132,9 +132,15 @@ class MAT_OT_NEURAL_FileBrowser(Operator, ImportHelper):
         gan = bpy.context.scene.neural_properties
         gan.directory = os.path.dirname(fdir)
         fdir = os.path.dirname(fdir)
+
+        active_obj = bpy.context.active_object
+        if active_obj:
+            # Store base material path for later saving
+            active_obj["Neural_Path"] = fdir 
+
         if os.path.isdir(os.path.join(fdir, 'out')):
             gan.progress = "Material found."
-            update_neural(os.path.join(fdir, 'out'))        
+            update_neural(active_obj, os.path.join(fdir, 'out'))        
         else:
             gan.progress = "Ready to generate."
         return {'FINISHED'}
@@ -231,8 +237,8 @@ class MAT_OT_NEURAL_EditMove(Operator):
 
 
     def preprocess(self, context):
-        if bpy.context.view_layer.objects.active:
-            name = f"{bpy.context.view_layer.objects.active.name}_neural"
+        if bpy.context.active_object:
+            name = f"{bpy.context.active_object.name}_neural"
         else:
             name = "neural"
         
@@ -280,20 +286,23 @@ class MAT_OT_NEURAL_EditMove(Operator):
         shutil.move(new_normal_path, old_normal_path)
 
         # Update material textures
-        update_neural(out)
+        update_neural(bpy.context.active_object, out)
 
         in_dir  = os.path.join(gan.directory)
         weight_dir = os.path.join(gan.directory, 'out', 'weights.ckpt')
 
         model_path = './trainings/Neuralmaterial'
 
+        max_h = min(gan.h_res, 1024)
+        max_w = min(gan.w_res, 1024)
+
         # Call to generate texture maps
         process = subprocess.Popen([PYTHON_EXE, '-u', './scripts/get_interpolations.py',
                 '--model', model_path,
                 '--input_path', in_dir,
                 '--weight_path', weight_dir,
-                '--h', str(gan.h_res),
-                '--w', str(gan.w_res)], stdout=subprocess.PIPE, cwd=str(Path(base_script_path, 'neuralmaterial')))
+                '--h', str(max_h),
+                '--w', str(max_w)], stdout=subprocess.PIPE, cwd=str(Path(base_script_path, 'neuralmaterial')))
 
         MAT_OT_NEURAL_GetInterpolations._popen = process
 

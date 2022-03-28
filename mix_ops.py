@@ -19,12 +19,9 @@ def check_remove_img(name):
         bpy.data.images.remove(image)
 
 # Function for updating textures during material generation.
-def update_mix(base_path):
-    # Update textures if they already exist
-    active_obj = bpy.context.view_layer.objects.active
-
-    if active_obj:
-        base_name = f"{active_obj.name}_mix_mat"
+def update_mix(obj, base_path):
+    if obj:
+        base_name = f"{obj.name}_mix_mat"
         if base_name not in bpy.data.materials:
             mat = bpy.data.materials["mix_mat"].copy()
             mat.name = base_name
@@ -130,7 +127,7 @@ class MAT_OT_MIX_Generator(Operator):
         out_dir = Path(mixmat.directory, 'out')
         bpy.context.scene.use_nodes = False
 
-        update_mix(str(out_dir))
+        update_mix(bpy.context.active_object, str(out_dir))
         mixmat.progress = "Material generated."
         mixmat.progress += f" Elapsed time: {time.time()-sTime:.3f}"
 
@@ -155,10 +152,15 @@ class MAT_OT_MIX_FileBrowser(Operator, ImportHelper):
         fdir = self.properties.filepath
         mixmat.directory = os.path.dirname(fdir)
         fdir = os.path.dirname(fdir)
+
+        active_obj = bpy.context.active_object
+        if active_obj:
+            # Store base material path for later saving
+            active_obj["Algorithmic_Path"] = fdir 
         
         if os.path.isdir(os.path.join(fdir, 'out')):
             mixmat.progress = "Material found."
-            update_mix(os.path.join(fdir, 'out'))        
+            update_mix(active_obj, os.path.join(fdir, 'out'))        
         else:
             mixmat.progress = "Ready to generate."
         return {'FINISHED'}

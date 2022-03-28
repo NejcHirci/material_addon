@@ -94,10 +94,14 @@ if __name__ == '__main__':
         model.load_state_dict(state_dict_pre)
 
         state_dict_sem = load_state_dict(Path(mat_dir, 'weights.ckpt'))
-        sem_img = load_image(mat_dir)
-        z2, _, _, _ = model.encode(sem_img, 'test')
+        if Path(mat_dir, 'z2.ckpt').exists():
+            z2 = torch.load(Path(mat_dir, 'z2.ckpt'), map_location=device)
+        else:
+            sem_img = load_image(mat_dir)
+            z2, _, _, _ = model.encode(sem_img, 'test')
+            torch.save(z2, Path(mat_dir, 'z2.ckpt'))
 
-        dists = [0.2, -0.2]
+        dists = [0.3, -0.3]
 
         # sample noise
         h_res = round(args.h / 16) * 16
@@ -134,5 +138,5 @@ if __name__ == '__main__':
                     v = (v + 1) / 2
                 
                 save_png(v, str(Path(output_path, f'{sem_id}_{inter_idx+1}_{k}.png')), gamma=2.2)
-        print(f"Generating all interps for one semantic {time.time()-sTime:.2f}")
+        print(f"Generated all interps for one semantic {time.time()-sTime:.2f}")
         sem_id += 1

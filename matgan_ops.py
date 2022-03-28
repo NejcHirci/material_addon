@@ -13,6 +13,7 @@ import shutil
 import subprocess
 import time
 import sys
+import re
 from pathlib import Path
 
 import bpy
@@ -38,11 +39,9 @@ def replace_file(src_path, dst_path, retries=10, sleep=0.1):
             break
     
 # Function for updating textures during material generation.
-def update_matgan(base_path):
-    active_obj = bpy.context.view_layer.objects.active
-
-    if active_obj:
-        base_name = f"{active_obj.name}_matgan_mat"
+def update_matgan(obj, base_path):
+    if obj:
+        base_name = f"{obj.name}_matgan_mat"
         if base_name not in bpy.data.materials:
             mat = bpy.data.materials["matgan_mat"].copy()
             mat.name = base_name
@@ -228,8 +227,8 @@ class MAT_OT_MATGAN_EditMove(Operator):
 
 
     def preprocess(self, context):
-        if bpy.context.view_layer.objects.active:
-            name = f"{bpy.context.view_layer.objects.active.name}_matgan"
+        if bpy.context.active_object:
+            name = f"{bpy.context.active_object.name}_matgan"
         else:
             name = "matgan"
         
@@ -283,7 +282,7 @@ class MAT_OT_MATGAN_EditMove(Operator):
         shutil.move(new_normal_path, old_normal_path)
 
         # Update material textures
-        update_matgan(out)
+        update_matgan(bpy.context.active_object, out)
 
         # Call to generate texture maps
         process = subprocess.Popen([PYTHON_EXE, '-u', './sefa/get_directions.py', 
@@ -325,8 +324,6 @@ class MAT_OT_MATGAN_SuperResolution(Operator):
             '--model', model_path,
             '--resolution', "{},{}".format(h, w),
             '--gpu', "0"], stdout=subprocess.PIPE, cwd=str(base_script_path))
-        
-        print(process.args)
 
         gan.progress = "Upscaling material"
         MAT_OT_MATGAN_SuperResolution._popen = process
@@ -351,9 +348,15 @@ class MAT_OT_MATGAN_FileBrowser(Operator, ImportHelper):
         fdir = self.properties.filepath
         bpy.context.scene.matgan_properties.directory = os.path.dirname(fdir)
         fdir = os.path.dirname(fdir)
+
+        active_obj = bpy.context.active_object
+        if active_obj:
+            # Store base material path for later saving
+            active_obj["MaterialGAN_Path"] = fdir 
+
         if os.path.isdir(os.path.join(fdir, 'out')):
             bpy.context.scene.matgan_properties.progress = "Material found."
-            update_matgan(os.path.join(fdir, 'out'))        
+            update_matgan(active_obj, os.path.join(fdir, 'out'))     
         else:
             bpy.context.scene.matgan_properties.progress = "Ready to format."
         return {'FINISHED'}
