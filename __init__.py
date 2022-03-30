@@ -200,6 +200,8 @@ classes = (
     neural_ops.MAT_OT_NEURAL_StopGenerator,
     matgan_ops.MAT_OT_MATGAN_EditMove,
     neural_ops.MAT_OT_NEURAL_EditMove,
+    matgan_ops.MAT_OT_MATGAN_RevertMaterial,
+    neural_ops.MAT_OT_NEURAL_RevertMaterial,
     gui.MAT_PT_GeneratorPanel,
 )
 

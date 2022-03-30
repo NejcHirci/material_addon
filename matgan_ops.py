@@ -15,6 +15,7 @@ import time
 import sys
 import re
 from pathlib import Path
+from webbrowser import Opera
 
 import bpy
 from bpy.types import Operator
@@ -298,6 +299,70 @@ class MAT_OT_MATGAN_EditMove(Operator):
         
         return {'FINISHED'}
 
+
+class MAT_OT_MATGAN_RevertMaterial(Operator):
+    bl_idname = "matgan.revert_material"
+    bl_label = "Revert edited material"
+    bl_description = "Trys to revert a material to older iteration if possible"
+    
+    @classmethod
+    def poll(self, context):
+        return "Material" in bpy.context.scene.matgan_properties.progress and \
+        os.path.isfile(os.path.join(bpy.context.scene.matgan_properties.directory, 'out', 'old_optim_latent.pt'))
+
+    def preprocess(self, context):
+        if bpy.context.active_object:
+            name = f"{bpy.context.active_object.name}_matgan"
+        else:
+            name = "matgan"
+        
+        # First unlink files
+        check_remove_img(f'{name}_render.png')
+        check_remove_img(f'{name}_albedo.png')
+        check_remove_img(f'{name}_rough.png')
+        check_remove_img(f'{name}_specular.png')
+        check_remove_img(f'{name}_normal.png')
+    
+    def execute(self, context):
+        gan = bpy.context.scene.matgan_properties
+
+        self.preprocess(context)
+
+        # Rename old files
+        out = os.path.join(gan.directory, 'out')
+
+        old_latent_path = os.path.join(out, 'old_optim_latent.pt')
+        old_noise_path = os.path.join(out, 'old_optim_noise.pt')
+        old_render_path = os.path.join(out, 'old_render.png')
+        old_albedo_path = os.path.join(out, 'old_albedo.png')
+        old_rough_path = os.path.join(out, 'old_rough.png')
+        old_specular_path = os.path.join(out, 'old_specular.png')
+        old_normal_path = os.path.join(out, 'old_normal.png')
+
+
+        latent_path = os.path.join(out, 'optim_latent.pt')
+        noise_path = os.path.join(out, 'optim_noise.pt')
+        render_path = os.path.join(out, 'render.png')
+        albedo_path = os.path.join(out, 'albedo.png')
+        rough_path = os.path.join(out, 'rough.png')
+        specular_path = os.path.join(out, 'specular.png')
+        normal_path = os.path.join(out, 'normal.png')
+
+        # Copy and replace old files
+        shutil.move(old_latent_path, latent_path)
+        shutil.move(old_noise_path, noise_path)
+        shutil.move(old_render_path, render_path)
+        shutil.move(old_albedo_path, albedo_path)
+        shutil.move(old_rough_path, rough_path)
+        shutil.move(old_specular_path, specular_path)
+        shutil.move(old_normal_path, normal_path)
+
+        # Update material textures
+        update_matgan(bpy.context.active_object, out)
+
+        gan.progress = 'Material reverted'
+        
+        return {'FINISHED'}
 
 class MAT_OT_MATGAN_SuperResolution(Operator):
     bl_idname = "matgan.super_res"

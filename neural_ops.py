@@ -324,3 +324,64 @@ class MAT_OT_NEURAL_StopGenerator(Operator):
     def execute(self, context):
         MAT_OT_NEURAL_Generator._popen.terminate()
         return {'FINISHED'}
+
+class MAT_OT_NEURAL_RevertMaterial(Operator):
+    bl_idname = "neural.revert_material"
+    bl_label = "Revert edited material"
+    bl_description = "Trys to revert a material to older iteration if possible"
+    
+    @classmethod
+    def poll(self, context):
+        return "Material" in bpy.context.scene.neural_properties.progress and \
+        os.path.isfile(os.path.join(bpy.context.scene.neural_properties.directory, 'out', 'old_render.png'))
+
+    def preprocess(self, context):
+        if bpy.context.active_object:
+            name = f"{bpy.context.active_object.name}_neural"
+        else:
+            name = "neural"
+        
+        # First unlink files
+        check_remove_img(f'{name}_render.png')
+        check_remove_img(f'{name}_albedo.png')
+        check_remove_img(f'{name}_rough.png')
+        check_remove_img(f'{name}_specular.png')
+        check_remove_img(f'{name}_normal.png')
+    
+    def execute(self, context):
+        gan = bpy.context.scene.neural_properties
+
+        self.preprocess(context)
+
+        # Rename old files
+        out = os.path.join(gan.directory, 'out')
+
+        old_weights_path = os.path.join(out, 'old_weights.ckpt')
+        old_render_path = os.path.join(out, 'old_render.png')
+        old_albedo_path = os.path.join(out, 'old_albedo.png')
+        old_rough_path = os.path.join(out, 'old_rough.png')
+        old_specular_path = os.path.join(out, 'old_specular.png')
+        old_normal_path = os.path.join(out, 'old_normal.png')
+
+
+        weights_path = os.path.join(out, 'weights.ckpt')
+        render_path = os.path.join(out, 'render.png')
+        albedo_path = os.path.join(out, 'albedo.png')
+        rough_path = os.path.join(out, 'rough.png')
+        specular_path = os.path.join(out, 'specular.png')
+        normal_path = os.path.join(out, 'normal.png')
+
+        # Copy and replace old files
+        shutil.move(old_weights_path, weights_path)
+        shutil.move(old_render_path, render_path)
+        shutil.move(old_albedo_path, albedo_path)
+        shutil.move(old_rough_path, rough_path)
+        shutil.move(old_specular_path, specular_path)
+        shutil.move(old_normal_path, normal_path)
+
+        # Update material textures
+        update_neural(bpy.context.active_object, out)
+
+        gan.progress = 'Material reverted'
+        
+        return {'FINISHED'}

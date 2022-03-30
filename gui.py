@@ -212,6 +212,8 @@ class MAT_PT_GeneratorPanel(Panel):
         # ================================================
 
         if MAT_OT_MATGAN_GetInterpolations._popen is None and MAT_OT_MATGAN_Generator._popen is None:
+            row = layout.row()
+            row.operator("matgan.revert_material", text="Revert material to previous")
             self.draw_gallery(context, matgan, "matgan")
         
     def draw_gallery(self, context, gan, mode):
@@ -305,6 +307,9 @@ class MAT_PT_GeneratorPanel(Panel):
         # ================================================
 
         if MAT_OT_NEURAL_GetInterpolations._popen is None and MAT_OT_NEURAL_Generator._popen is None:
+            row = layout.row()
+            row.operator("neural.", text="Revert material to previous")
+
             self.draw_gallery(context, neural, "neural")
 
     def draw_mixmat(self, context):
@@ -540,18 +545,6 @@ class MAT_OT_GalleryDirection(Operator):
 
 
     direction = 1
-
-    def execute(self, context):
-        if MAT_OT_GalleryDirection.direction == 1:
-            MAT_OT_GalleryDirection.direction = 2
-        else:
-            MAT_OT_GalleryDirection.direction = 1
-        return {'FINISHED'}
-
-class MAT_OT_RevertChange(Operator):
-    """Operator which reverts to older material if possible"""
-    bl_idname = "mat.revert_material"
-    bl_label = "Revert currently loaded material"
 
     def execute(self, context):
         if MAT_OT_GalleryDirection.direction == 1:
