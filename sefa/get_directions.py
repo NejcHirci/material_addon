@@ -37,7 +37,7 @@ if __name__ == '__main__':
     torch.manual_seed(42)
 
     # Get Factorized weights
-    global_var.init_global_noise(256, 'materialGAN/data/pretrain/latent_const_N_256.pt')
+    global_var.init_global_noise(256, 'random')
     generator = StyleGAN2Generator('svbrdf')
     boundaries = np.load('sefa/directions/boundaries_0-13.npy')
     values = np.load('sefa/directions/values_0-13.npy')
@@ -67,13 +67,13 @@ if __name__ == '__main__':
     
     skip_first = 1
     for sem_id in range(8):
-        i = sem_id + 1
+        i = sem_id + skip_first
         boundary = boundaries[i:i + 1]
-        distances = [-4.0, 4.0]
+        distances = [-3.0, 3.0]
         for col_id, d in enumerate(distances, start=1):
             temp_code = code.copy()
             temp_code[:, 0:13, :] += boundary * d
-            global_var.noises = lerp_noises(noises, rand_noises[sem_id], 0.3)
+            global_var.noises = lerp_noises(noises, rand_noises[sem_id], 0.5 * d/abs(d))
             torch.save(torch.from_numpy(temp_code).type(torch.FloatTensor), os.path.join(args.save_dir, f'{sem_id}_{col_id}_optim_latent.pt'))
             torch.save(global_var.noises, os.path.join(args.save_dir, f'{sem_id}_{col_id}_optim_noise.pt'))
             image = generator.net.synthesis(torch.from_numpy(temp_code).type(torch.FloatTensor).cuda())
