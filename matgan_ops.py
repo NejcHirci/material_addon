@@ -248,13 +248,13 @@ class MAT_OT_MATGAN_EditMove(Operator):
         self.preprocess(context)
 
         # Setup new noise paths
-        new_latent_path = os.path.join(interp_dir, f'{self.direction}_1_optim_latent.pt')
-        new_noise_path = os.path.join(interp_dir, f'{self.direction}_1_optim_noise.pt')
-        new_render_path = os.path.join(interp_dir, f'{self.direction}_1_render.png')
-        new_albedo_path = os.path.join(interp_dir, f'{self.direction}_1_albedo.png')
-        new_rough_path = os.path.join(interp_dir, f'{self.direction}_1_rough.png')
-        new_specular_path = os.path.join(interp_dir, f'{self.direction}_1_specular.png')
-        new_normal_path = os.path.join(interp_dir, f'{self.direction}_1_normal.png')
+        new_latent_path = os.path.join(interp_dir, f'{self.direction}_{gan.direction}_optim_latent.pt')
+        new_noise_path = os.path.join(interp_dir, f'{self.direction}_{gan.direction}_optim_noise.pt')
+        new_render_path = os.path.join(interp_dir, f'{self.direction}_{gan.direction}_render.png')
+        new_albedo_path = os.path.join(interp_dir, f'{self.direction}_{gan.direction}_albedo.png')
+        new_rough_path = os.path.join(interp_dir, f'{self.direction}_{gan.direction}_rough.png')
+        new_specular_path = os.path.join(interp_dir, f'{self.direction}_{gan.direction}_specular.png')
+        new_normal_path = os.path.join(interp_dir, f'{self.direction}_{gan.direction}_normal.png')
 
         # Rename old files
         out = os.path.join(gan.directory, 'out')

@@ -73,7 +73,7 @@ if __name__ == '__main__':
         for col_id, d in enumerate(distances, start=1):
             temp_code = code.copy()
             temp_code[:, 0:13, :] += boundary * d
-            global_var.noises = lerp_noises(noises, rand_noises[sem_id], 0.3 * d/abs(d))
+            global_var.noises = lerp_noises(noises, rand_noises[sem_id], 0.3)
             torch.save(torch.from_numpy(temp_code).type(torch.FloatTensor), os.path.join(args.save_dir, f'{sem_id}_{col_id}_optim_latent.pt'))
             torch.save(global_var.noises, os.path.join(args.save_dir, f'{sem_id}_{col_id}_optim_noise.pt'))
             image = generator.net.synthesis(torch.from_numpy(temp_code).type(torch.FloatTensor).cuda())

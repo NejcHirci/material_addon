@@ -54,6 +54,8 @@ class MaterialGANProps(bpy.types.PropertyGroup):
         default=1024, min=512, max=8096)
     w_res : bpy.props.IntProperty(name="Super resolution width", subtype="PIXEL", description="Width resolution for upscaling", \
         default=1024, min=512, max=8096)
+    direction: bpy.props.IntProperty(name="+ or - direction", description="In which direction should we edit",
+        default=1, min=1, max=2, options={'SKIP_SAVE'})
 
 class NeuralMaterialProps(bpy.types.PropertyGroup):
     num_rend: bpy.props.IntProperty(name="N", description="Number of images used for material generation",
@@ -69,6 +71,8 @@ class NeuralMaterialProps(bpy.types.PropertyGroup):
     w_res : bpy.props.IntProperty(name="Super resolution width", subtype="PIXEL", description="Width resolution for upscaling", \
         default=1024, min=512, max=3008)
     seed : bpy.props.IntProperty(name="Seed", description="Seed used for material generation", default=42, min=0, max=100000)
+    direction: bpy.props.IntProperty(name="+ or - direction", description="In which direction should we edit",
+        default=1, min=1, max=2, options={'SKIP_SAVE'})
 
 class MixMaterialProps(bpy.types.PropertyGroup):
     directory: bpy.props.StringProperty(name="Import folder", description="The folder to import images from",

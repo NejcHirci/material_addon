@@ -255,12 +255,12 @@ class MAT_OT_NEURAL_EditMove(Operator):
 
         self.preprocess(context)
 
-        new_weight_path = os.path.join(interp_dir, f'{self.direction}_1_weights.ckpt')
-        new_render_path = os.path.join(interp_dir, f'{self.direction}_1_render.png')
-        new_albedo_path = os.path.join(interp_dir, f'{self.direction}_1_albedo.png')
-        new_rough_path = os.path.join(interp_dir, f'{self.direction}_1_rough.png')
-        new_specular_path = os.path.join(interp_dir, f'{self.direction}_1_specular.png')
-        new_normal_path = os.path.join(interp_dir, f'{self.direction}_1_normal.png')
+        new_weight_path = os.path.join(interp_dir, f'{self.direction}_{gan.direction}_weights.ckpt')
+        new_render_path = os.path.join(interp_dir, f'{self.direction}_{gan.direction}_render.png')
+        new_albedo_path = os.path.join(interp_dir, f'{self.direction}_{gan.direction}_albedo.png')
+        new_rough_path = os.path.join(interp_dir, f'{self.direction}_{gan.direction}_rough.png')
+        new_specular_path = os.path.join(interp_dir, f'{self.direction}_{gan.direction}_specular.png')
+        new_normal_path = os.path.join(interp_dir, f'{self.direction}_{gan.direction}_normal.png')
 
         # Rename old files
         out = os.path.join(gan.directory, 'out')

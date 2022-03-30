@@ -558,6 +558,10 @@ class MAT_OT_GalleryDirection(Operator):
     def execute(self, context):
         if MAT_OT_GalleryDirection.direction == 1:
             MAT_OT_GalleryDirection.direction = 2
+            bpy.context.scene.matgan_properties.direction = MAT_OT_GalleryDirection.direction = 2
+            bpy.context.scene.neural_properties.direction = MAT_OT_GalleryDirection.direction = 2
         else:
             MAT_OT_GalleryDirection.direction = 1
+            bpy.context.scene.matgan_properties.direction = MAT_OT_GalleryDirection.direction = 1
+            bpy.context.scene.neural_properties.direction = MAT_OT_GalleryDirection.direction = 1
         return {'FINISHED'}
