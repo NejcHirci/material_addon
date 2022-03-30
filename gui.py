@@ -547,3 +547,15 @@ class MAT_OT_GalleryDirection(Operator):
         else:
             MAT_OT_GalleryDirection.direction = 1
         return {'FINISHED'}
+
+class MAT_OT_RevertChange(Operator):
+    """Operator which reverts to older material if possible"""
+    bl_idname = "mat.revert_material"
+    bl_label = "Revert currently loaded material"
+
+    def execute(self, context):
+        if MAT_OT_GalleryDirection.direction == 1:
+            MAT_OT_GalleryDirection.direction = 2
+        else:
+            MAT_OT_GalleryDirection.direction = 1
+        return {'FINISHED'}
