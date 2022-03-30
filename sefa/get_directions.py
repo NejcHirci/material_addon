@@ -65,9 +65,11 @@ if __name__ == '__main__':
         return copy.deepcopy(global_var.noises)
     rand_noises = [rand_noise() for _ in range(8)]
     
-    for sem_id in range(1, 9):
-        boundary = boundaries[sem_id:sem_id + 1]
-        distances = [-3.0, 3.0]
+    skip_first = 1
+    for sem_id in range(8):
+        i = sem_id + 1
+        boundary = boundaries[i:i + 1]
+        distances = [-4.0, 4.0]
         for col_id, d in enumerate(distances, start=1):
             temp_code = code.copy()
             temp_code[:, 0:13, :] += boundary * d
