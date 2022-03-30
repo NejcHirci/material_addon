@@ -65,7 +65,7 @@ if __name__ == '__main__':
         return copy.deepcopy(global_var.noises)
     rand_noises = [rand_noise() for _ in range(8)]
     
-    for sem_id in range(8):
+    for sem_id in range(1, 9):
         boundary = boundaries[sem_id:sem_id + 1]
         distances = [-3.0, 3.0]
         for col_id, d in enumerate(distances, start=1):
@@ -77,4 +77,4 @@ if __name__ == '__main__':
             image = generator.net.synthesis(torch.from_numpy(temp_code).type(torch.FloatTensor).cuda())
             image = generator.get_value(image)[0]
             save_render_and_map(f"{sem_id}_{col_id}", args.save_dir, image, input_path)
-        print("Semantics generated {}/8".format(sem_id+1))
+        print("Semantics generated {}/8".format(sem_id))
