@@ -308,7 +308,7 @@ class MAT_PT_GeneratorPanel(Panel):
 
         if MAT_OT_NEURAL_GetInterpolations._popen is None and MAT_OT_NEURAL_Generator._popen is None:
             row = layout.row()
-            row.operator("neural.", text="Revert material to previous")
+            row.operator("neural.revert_material", text="Revert material to previous")
 
             self.draw_gallery(context, neural, "neural")
 
