@@ -104,6 +104,15 @@ def update_active_mat(self, context):
         
         active_obj.active_material = mat
 
+        if context.scene.SelectWorkflow == 'MatGAN' and 'MaterialGAN_Path' in active_obj:
+            bpy.context.scene.matgan_properties.directory = active_obj['MaterialGAN_Path']
+        elif context.scene.SelectWorkflow == 'NeuralMAT' and 'Neural_Path' in active_obj:
+            bpy.context.scene.neural_properties.directory = active_obj['Neural_Path']
+        elif context.scene.SelectWorkflow == 'MixMAT' and 'Algorithmic_Path' in active_obj:
+            bpy.context.scene.mixmat_properties.directory = active_obj['Algorithmic_Path']
+
+
+
 # Copy files to .cache folder
 def copy_to_cache(src_path, name):
     dst_path = os.path.join(cache_path, name)
